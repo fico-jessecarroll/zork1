@@ -1,0 +1,19 @@
+{
+  "name": "zork1-web",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@10.9.8",
+  "scripts": {
+    "test": "jest --watchAll=false",
+    "test:watch": "jest --watch",
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "start": "echo 'Dev server not yet configured'"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4",
+    "typescript": "^5.4.5"
+  }
+}
