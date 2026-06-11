@@ -1,31 +1,55 @@
-import { GameState } from './types';
+import { GameState, ObjectFlag, RoomFlag } from './types';
+
+type SerializedState = {
+  objectLocations: Record<string, string>;
+  flagOverrides: Record<string, (ObjectFlag | RoomFlag)[]>;
+  score: number;
+  moves: number;
+  winner: string;
+  here: string;
+};
 
 export function serialize(state: GameState): string {
-  return JSON.stringify(state);
+  const serialized: SerializedState = {
+    objectLocations: Object.fromEntries(state.objectLocations),
+    flagOverrides: Object.fromEntries(
+      Array.from(state.flagOverrides.entries()).map(([k, v]) => [k, Array.from(v)])
+    ),
+    score: state.score,
+    moves: state.moves,
+    winner: state.winner,
+    here: state.here,
+  };
+  return JSON.stringify(serialized);
 }
 
 export function deserialize(json: string): GameState {
   const parsed: unknown = JSON.parse(json);
-  if (!isGameState(parsed)) {
+  if (!isSerializedState(parsed)) {
     throw new Error('Invalid game state: missing or malformed required fields');
   }
-  return parsed;
+  return {
+    objectLocations: new Map(Object.entries(parsed.objectLocations)),
+    flagOverrides: new Map(
+      Object.entries(parsed.flagOverrides).map(([k, v]) => [k, new Set(v)])
+    ),
+    score: parsed.score,
+    moves: parsed.moves,
+    winner: parsed.winner,
+    here: parsed.here,
+  };
 }
 
-function isGameState(value: unknown): value is GameState {
+function isSerializedState(value: unknown): value is SerializedState {
   if (typeof value !== 'object' || value === null) return false;
   const s = value as Record<string, unknown>;
   return (
-    typeof s['version'] === 'number' &&
-    typeof s['currentRoom'] === 'string' &&
+    isPlainObject(s['objectLocations']) &&
+    isPlainObject(s['flagOverrides']) &&
     typeof s['score'] === 'number' &&
     typeof s['moves'] === 'number' &&
-    typeof s['maxScore'] === 'number' &&
-    typeof s['loadAllowed'] === 'number' &&
-    isPlainObject(s['objects']) &&
-    isPlainObject(s['rooms']) &&
-    isPlainObject(s['globals']) &&
-    Array.isArray(s['outputBuffer'])
+    typeof s['winner'] === 'string' &&
+    typeof s['here'] === 'string'
   );
 }
 

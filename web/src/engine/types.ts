@@ -1,31 +1,114 @@
-export interface ObjectState {
-  id: string;
-  /** Room id, container object id, or "PLAYER" for inventory. */
-  location: string;
-  flags: Record<string, boolean>;
-  properties: Record<string, number | string | boolean>;
+export enum Direction {
+  NORTH = 'NORTH',
+  SOUTH = 'SOUTH',
+  EAST = 'EAST',
+  WEST = 'WEST',
+  NE = 'NE',
+  NW = 'NW',
+  SE = 'SE',
+  SW = 'SW',
+  UP = 'UP',
+  DOWN = 'DOWN',
+  IN = 'IN',
+  OUT = 'OUT',
+  LAND = 'LAND',
 }
 
-export interface RoomState {
-  id: string;
-  visited: boolean;
-  flags: Record<string, boolean>;
+export enum ObjectFlag {
+  TAKEBIT = 'TAKEBIT',
+  CONTBIT = 'CONTBIT',
+  DOORBIT = 'DOORBIT',
+  OPENBIT = 'OPENBIT',
+  LOCKBIT = 'LOCKBIT',
+  LIGHTBIT = 'LIGHTBIT',
+  TOUCHBIT = 'TOUCHBIT',
+  VEHBIT = 'VEHBIT',
+  BURNBIT = 'BURNBIT',
+  FLAMEBIT = 'FLAMEBIT',
+  ONBIT = 'ONBIT',
+  WEAPONBIT = 'WEAPONBIT',
+  WEARBIT = 'WEARBIT',
+  READBIT = 'READBIT',
+  TRANSBIT = 'TRANSBIT',
+  TRYTAKEBIT = 'TRYTAKEBIT',
+  NDESCBIT = 'NDESCBIT',
+  SACREDBIT = 'SACREDBIT',
+  ACTORBIT = 'ACTORBIT',
+  CLIMBBIT = 'CLIMBBIT',
+  DRINKBIT = 'DRINKBIT',
+  FOODBIT = 'FOODBIT',
+  FIGHTBIT = 'FIGHTBIT',
+  MAZEBIT = 'MAZEBIT',
+  NONLANDBIT = 'NONLANDBIT',
+  SEARCHBIT = 'SEARCHBIT',
+  SURFACEBIT = 'SURFACEBIT',
+  TOOLBIT = 'TOOLBIT',
+  TURNBIT = 'TURNBIT',
+  INVISIBLE = 'INVISIBLE',
 }
 
-/**
- * Full snapshot of runtime game state. Must contain only JSON-serializable
- * primitives — no functions, class instances, or circular references.
- */
+export enum RoomFlag {
+  RMUNGBIT = 'RMUNGBIT',
+  RLANDBIT = 'RLANDBIT',
+  LIGHTBIT = 'LIGHTBIT',
+  ONBIT = 'ONBIT',
+  SACREDBIT = 'SACREDBIT',
+  MAZEBIT = 'MAZEBIT',
+}
+
+export type UnconditionalExit = {
+  kind: 'unconditional';
+  to: string;
+};
+
+export type BlockedExit = {
+  kind: 'blocked';
+  message: string;
+};
+
+export type ConditionalExit = {
+  kind: 'conditional';
+  to: string;
+  condition: string;
+  elseMessage?: string;
+};
+
+export type FunctionExit = {
+  kind: 'function';
+  fn: string;
+};
+
+export type Exit = UnconditionalExit | BlockedExit | ConditionalExit | FunctionExit;
+
+export interface Room {
+  id: string;
+  desc: string;
+  ldesc?: string;
+  exits: Partial<Record<Direction, Exit>>;
+  flags: Set<RoomFlag>;
+  globals?: string[];
+  action?: string;
+}
+
+export interface GameObject {
+  id: string;
+  desc: string;
+  ldesc?: string;
+  synonyms?: string[];
+  adjectives?: string[];
+  flags: Set<ObjectFlag>;
+  initialLocation: string;
+  action?: string;
+  size?: number;
+  capacity?: number;
+  strength?: number;
+}
+
 export interface GameState {
-  version: number;
-  currentRoom: string;
+  objectLocations: Map<string, string>;
+  flagOverrides: Map<string, Set<ObjectFlag | RoomFlag>>;
   score: number;
   moves: number;
-  maxScore: number;
-  loadAllowed: number;
-  objects: Record<string, ObjectState>;
-  rooms: Record<string, RoomState>;
-  /** Game-specific boolean/numeric flags (e.g. CYCLOPS-FLAG, DOME-FLAG). */
-  globals: Record<string, number | string | boolean>;
-  outputBuffer: string[];
+  winner: string;
+  here: string;
 }
