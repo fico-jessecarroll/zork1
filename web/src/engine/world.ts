@@ -33,6 +33,12 @@ export interface GameState {
   readonly globalObjects: string;
   /** Debug override: every room is lit */
   readonly alwaysLit: boolean;
+  /** LCG seed for the seedable RNG (advances each rngInt call) */
+  readonly seed: number;
+  /** Player score (affects fight strength calculation) */
+  readonly score: number;
+  /** Mutable numeric properties keyed by "OBJECT:prop" — e.g. troll strength */
+  readonly properties: ReadonlyMap<string, number>;
 }
 
 // ---------------------------------------------------------------------------
@@ -177,6 +183,53 @@ export function isLit(room: string, state: GameState): boolean {
   }
 
   return false;
+}
+
+// ---------------------------------------------------------------------------
+// RNG helpers
+// ---------------------------------------------------------------------------
+
+/** Advance the LCG seed one step (Knuth multiplicative). */
+function lcgStep(seed: number): number {
+  return ((Math.imul(seed, 1664525) + 1013904223) | 0) >>> 0;
+}
+
+/**
+ * Return [value: 1..max, newState] — mirrors ZIL RANDOM N.
+ * Updates state.seed.
+ */
+export function rngInt(max: number, state: GameState): [number, GameState] {
+  const next = lcgStep(state.seed);
+  const value = (next % max) + 1;
+  return [value, { ...state, seed: next }];
+}
+
+// ---------------------------------------------------------------------------
+// Mutable-property helpers (ZIL PUTP / GETP for numeric properties)
+// ---------------------------------------------------------------------------
+
+/**
+ * Read a numeric property stored under the key "id:prop".
+ * Returns defaultVal (0) when not set.
+ */
+export function getProp(id: string, prop: string, state: GameState, defaultVal = 0): number {
+  return state.properties.get(`${id}:${prop}`) ?? defaultVal;
+}
+
+/** Write a numeric property stored under the key "id:prop". Returns new state. */
+export function setProp(id: string, prop: string, value: number, state: GameState): GameState {
+  const properties = new Map(state.properties);
+  properties.set(`${id}:${prop}`, value);
+  return { ...state, properties };
+}
+
+// ---------------------------------------------------------------------------
+// Object removal
+// ---------------------------------------------------------------------------
+
+/** Remove obj from the world (sets parent to null). Mirrors ZIL REMOVE-CAREFULLY. */
+export function remove(obj: string, state: GameState): GameState {
+  return withUpdatedObj(state, obj, o => ({ ...o, parent: null }));
 }
 
 /**
