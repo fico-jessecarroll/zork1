@@ -37,6 +37,9 @@ function makeState(rngValues: number[]): CombatState {
     here: 'room',
     globalObjects: 'global-objects',
     alwaysLit: false,
+    seed: 0,
+    score: 0,
+    properties: new Map(),
     rng: () => rngValues[i++ % rngValues.length],
   };
 }
