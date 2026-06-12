@@ -10,6 +10,10 @@ import {
   fcheck,
   isLit,
   isAccessible,
+  rngInt,
+  getProp,
+  setProp,
+  remove,
   ONBIT,
   LIGHTBIT,
   OPENBIT,
@@ -67,6 +71,9 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     here: 'west-of-house',
     globalObjects: 'global-objects',
     alwaysLit: false,
+    seed: 0,
+    score: 0,
+    properties: new Map(),
     ...overrides,
   };
 }
@@ -381,5 +388,75 @@ describe('isAccessible', () => {
     const s1 = move('torch', 'player', s0);
     const s2 = { ...s1, here: 'cellar' };
     expect(isAccessible('torch', s2)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// rngInt — seedable RNG
+// ---------------------------------------------------------------------------
+
+describe('rngInt', () => {
+  it('returns a value in [1, max]', () => {
+    const s0 = makeState({ seed: 1 });
+    const [v] = rngInt(9, s0);
+    expect(v).toBeGreaterThanOrEqual(1);
+    expect(v).toBeLessThanOrEqual(9);
+  });
+
+  it('advances the seed each call', () => {
+    const s0 = makeState({ seed: 42 });
+    const [, s1] = rngInt(9, s0);
+    const [, s2] = rngInt(9, s1);
+    expect(s0.seed).not.toBe(s1.seed);
+    expect(s1.seed).not.toBe(s2.seed);
+  });
+
+  it('same seed produces same result', () => {
+    const s0 = makeState({ seed: 99 });
+    const [v1] = rngInt(9, s0);
+    const [v2] = rngInt(9, s0);
+    expect(v1).toBe(v2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getProp / setProp
+// ---------------------------------------------------------------------------
+
+describe('getProp / setProp', () => {
+  it('getProp returns default 0 for unknown key', () => {
+    const state = makeState();
+    expect(getProp('TROLL', 'strength', state)).toBe(0);
+  });
+
+  it('setProp stores a value retrievable by getProp', () => {
+    const s0 = makeState();
+    const s1 = setProp('TROLL', 'strength', 2, s0);
+    expect(getProp('TROLL', 'strength', s1)).toBe(2);
+  });
+
+  it('setProp does not mutate original state', () => {
+    const s0 = makeState();
+    setProp('TROLL', 'strength', 5, s0);
+    expect(getProp('TROLL', 'strength', s0)).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// remove
+// ---------------------------------------------------------------------------
+
+describe('remove', () => {
+  it('sets the object parent to null', () => {
+    const s0 = makeState();
+    expect(getLocation('lantern', s0)).toBe('player');
+    const s1 = remove('lantern', s0);
+    expect(getLocation('lantern', s1)).toBeNull();
+  });
+
+  it('does not affect other objects', () => {
+    const s0 = makeState();
+    const s1 = remove('lantern', s0);
+    expect(getLocation('player', s1)).toBe('west-of-house');
   });
 });
