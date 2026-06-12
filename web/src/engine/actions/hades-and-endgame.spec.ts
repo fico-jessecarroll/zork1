@@ -66,6 +66,8 @@ function makeState(overrides: Partial<HadesGameState> = {}): HadesGameState {
     here: ROOM_ENTRANCE_TO_HADES,
     globalObjects: 'global-objects',
     alwaysLit: false,
+    seed: 0,
+    properties: new Map(),
     deaths: 0,
     dead: false,
     lldFlag: false,
