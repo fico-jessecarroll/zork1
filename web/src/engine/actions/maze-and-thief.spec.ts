@@ -77,6 +77,8 @@ function makeState(
     here: ROOM_A,
     globalObjects: 'global-objects',
     alwaysLit: true,
+    seed: 0,
+    properties: new Map(),
     thiefHere: false,
     thiefEngrossed: false,
     baseScore: 0,
