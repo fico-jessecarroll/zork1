@@ -20,4 +20,18 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-terminal')).toBeTruthy();
   });
+
+  it('should render the hints component', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-hints')).toBeTruthy();
+  });
+
+  it('should pass initial room ID to hints component', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const app = fixture.componentInstance;
+    expect(app.roomId).toBe('WEST-OF-HOUSE');
+  });
 });

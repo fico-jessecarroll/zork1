@@ -6,5 +6,8 @@
     [roomName]="roomName"
     (command)="onCommand($event)"
   ></app-terminal>
-  <app-cheat-sheet class="cheat-sheet-pane"></app-cheat-sheet>
+  <div class="sidebar">
+    <app-cheat-sheet></app-cheat-sheet>
+    <app-hints [roomId]="roomId"></app-hints>
+  </div>
 </div>
