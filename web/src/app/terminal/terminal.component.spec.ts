@@ -184,11 +184,49 @@ describe('TerminalComponent', () => {
     component.inputValue = 'take lamp';
     component.submit();
     component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
-    // now at 'take lamp'
     component.inputValue = 'look';
     component.submit();
-    // history index should be reset
     component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
     expect(component.inputValue).toBe('look');
+  });
+
+  // ---------------------------------------------------------------------------
+  // Theme toggle
+  // ---------------------------------------------------------------------------
+
+  describe('theme toggle', () => {
+    afterEach(() => {
+      localStorage.removeItem('zork1-theme');
+    });
+
+    it('defaults theme to amber when localStorage has no saved value', () => {
+      localStorage.removeItem('zork1-theme');
+      const freshComponent = TestBed.createComponent(TerminalComponent).componentInstance;
+      expect(freshComponent.theme).toBe('amber');
+    });
+
+    it('initializes theme from localStorage zork1-theme key', () => {
+      localStorage.setItem('zork1-theme', 'green');
+      const freshComponent = TestBed.createComponent(TerminalComponent).componentInstance;
+      expect(freshComponent.theme).toBe('green');
+    });
+
+    it('toggleTheme switches from amber to green', () => {
+      component.theme = 'amber';
+      component.toggleTheme();
+      expect(component.theme).toBe('green');
+    });
+
+    it('toggleTheme switches from green back to amber', () => {
+      component.theme = 'green';
+      component.toggleTheme();
+      expect(component.theme).toBe('amber');
+    });
+
+    it('toggleTheme persists new value to localStorage under zork1-theme', () => {
+      component.theme = 'amber';
+      component.toggleTheme();
+      expect(localStorage.getItem('zork1-theme')).toBe('green');
+    });
   });
 });
