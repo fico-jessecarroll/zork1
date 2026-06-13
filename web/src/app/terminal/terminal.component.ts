@@ -35,6 +35,9 @@ export class TerminalComponent implements AfterViewChecked {
   inputValue = '';
 
   private shouldScroll = false;
+  private cmdHistory: string[] = [];
+  private historyIndex = -1;
+  private draft = '';
 
   addResponse(text: string): void {
     this.transcript.push({ type: 'response', text });
@@ -44,6 +47,9 @@ export class TerminalComponent implements AfterViewChecked {
   submit(): void {
     const cmd = this.inputValue.trim();
     if (!cmd) return;
+    this.cmdHistory.push(cmd);
+    this.historyIndex = -1;
+    this.draft = '';
     this.transcript.push({ type: 'input', text: cmd });
     this.inputValue = '';
     this.shouldScroll = true;
@@ -53,6 +59,24 @@ export class TerminalComponent implements AfterViewChecked {
   handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
       this.submit();
+    } else if (event.key === 'ArrowUp') {
+      if (this.cmdHistory.length === 0) return;
+      if (this.historyIndex === -1) this.draft = this.inputValue;
+      this.historyIndex = Math.min(this.historyIndex + 1, this.cmdHistory.length - 1);
+      this.inputValue = this.cmdHistory[this.cmdHistory.length - 1 - this.historyIndex];
+      event.preventDefault();
+    } else if (event.key === 'ArrowDown') {
+      if (this.historyIndex <= 0) {
+        if (this.historyIndex === 0) {
+          this.historyIndex = -1;
+          this.inputValue = this.draft;
+          event.preventDefault();
+        }
+        return;
+      }
+      this.historyIndex--;
+      this.inputValue = this.cmdHistory[this.cmdHistory.length - 1 - this.historyIndex];
+      event.preventDefault();
     }
   }
 

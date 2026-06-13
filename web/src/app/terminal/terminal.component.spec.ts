@@ -141,4 +141,54 @@ describe('TerminalComponent', () => {
     component.handleKeydown(new KeyboardEvent('keydown', { key: 'a' }));
     expect(spy).not.toHaveBeenCalled();
   });
+
+  // ---------------------------------------------------------------------------
+  // Command history navigation
+  // ---------------------------------------------------------------------------
+
+  it('ArrowUp with empty history does nothing to inputValue', () => {
+    component.inputValue = 'partial';
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    expect(component.inputValue).toBe('partial');
+  });
+
+  it('ArrowUp after submitting a command shows that command in the input', () => {
+    component.inputValue = 'go north';
+    component.submit();
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    expect(component.inputValue).toBe('go north');
+  });
+
+  it('ArrowUp twice shows the second-to-last command', () => {
+    component.inputValue = 'go north';
+    component.submit();
+    component.inputValue = 'take lamp';
+    component.submit();
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    expect(component.inputValue).toBe('go north');
+  });
+
+  it('ArrowDown after ArrowUp restores the in-progress draft', () => {
+    component.inputValue = 'go north';
+    component.submit();
+    component.inputValue = 'draft text';
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    expect(component.inputValue).toBe('draft text');
+  });
+
+  it('submitting a new command resets the history index so ArrowUp shows the most recent command', () => {
+    component.inputValue = 'go north';
+    component.submit();
+    component.inputValue = 'take lamp';
+    component.submit();
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    // now at 'take lamp'
+    component.inputValue = 'look';
+    component.submit();
+    // history index should be reset
+    component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+    expect(component.inputValue).toBe('look');
+  });
 });
