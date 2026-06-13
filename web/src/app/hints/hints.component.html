@@ -1,0 +1,18 @@
+<div class="hints-container">
+  <button class="hints-toggle" (click)="toggle()">
+    {{ isOpen ? '▲' : '▼' }} Hints
+  </button>
+
+  <div class="hints-panel" *ngIf="isOpen">
+    <ng-container *ngIf="hasHints; else noHints">
+      <div *ngFor="let hint of hints.slice(0, revealedCount); let i = index" class="hint-line">
+        <span class="hint-num">{{ i + 1 }}.</span> {{ hint }}
+      </div>
+      <button *ngIf="canRevealMore" class="reveal-btn" (click)="revealNext()">Next hint…</button>
+      <div *ngIf="!canRevealMore && revealedCount > 0" class="no-more">No more hints.</div>
+    </ng-container>
+    <ng-template #noHints>
+      <div class="no-hints">No hints for this location.</div>
+    </ng-template>
+  </div>
+</div>
