@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.hints-container {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-top: 1px solid #3a3000;
+}
+
+.hints-toggle {
+  width: 100%;
+  background: #1a1a00;
+  border: none;
+  color: #ffd54f;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 8px;
+  text-align: left;
+}
+.hints-toggle:hover {
+  background: #2a2a00;
+}
+
+.hints-panel {
+  background: #0d0d0d;
+  padding: 8px;
+  color: #ffb300;
+}
+
+.hint-line {
+  margin-bottom: 6px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.hint-num {
+  color: #ffd54f;
+  font-weight: bold;
+}
+
+.reveal-btn {
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid #3a3000;
+  color: #ffb300;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  width: 100%;
+}
+.reveal-btn:hover {
+  background: #1a1a00;
+}
+
+.no-more, .no-hints {
+  color: #777;
+  font-style: italic;
+}
