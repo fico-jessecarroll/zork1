@@ -1,0 +1,29 @@
+<div class="terminal-wrapper">
+  <div class="status-bar">
+    <span class="room-name">{{ roomName }}</span>
+    <span class="score-moves" *ngIf="gameState">
+      Score: {{ gameState.score }}&nbsp;&nbsp;Moves: {{ gameState.moves }}
+    </span>
+  </div>
+
+  <div class="transcript" #scrollContainer>
+    <div
+      *ngFor="let line of transcript"
+      [class]="'line line--' + line.type"
+    >{{ line.text }}</div>
+  </div>
+
+  <div class="input-row">
+    <span class="prompt">&gt;</span>
+    <input
+      #inputEl
+      class="cmd-input"
+      type="text"
+      [(ngModel)]="inputValue"
+      (keydown)="handleKeydown($event)"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Command input"
+    />
+  </div>
+</div>
