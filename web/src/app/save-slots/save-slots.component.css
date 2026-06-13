@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.saves-container {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-top: 1px solid #3a3000;
+}
+
+.saves-toggle {
+  width: 100%;
+  background: #1a1a00;
+  border: none;
+  color: #ffd54f;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 8px;
+  text-align: left;
+}
+.saves-toggle:hover {
+  background: #2a2a00;
+}
+
+.saves-panel {
+  background: #0d0d0d;
+  padding: 8px;
+  color: #ffb300;
+}
+
+.slot-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #2a2000;
+}
+.slot-row:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.slot-name {
+  color: #ffd54f;
+  font-weight: bold;
+}
+
+.slot-meta {
+  color: #ffb300;
+  word-break: break-all;
+}
+
+.slot-date {
+  color: #777;
+  font-size: 11px;
+}
+
+.restore-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid #3a3000;
+  color: #ffb300;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.restore-btn:hover {
+  background: #1a1a00;
+}
+
+.no-saves {
+  color: #777;
+  font-style: italic;
+}

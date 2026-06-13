@@ -120,7 +120,7 @@ describe('GameService — SAVE / RESTORE', () => {
 
     const result = svc.processCommand('save');
     expect(result[0]).toBe('Saved.');
-    expect(storage.getItem('zork1-save')).not.toBeNull();
+    expect(storage.getItem('zork1-saves')).not.toBeNull();
   });
 
   it('restore command via processCommand when no save exists returns failure message', () => {
@@ -223,5 +223,143 @@ describe('serializeState / deserializeState round-trip', () => {
 
   it('deserializeState throws on invalid JSON', () => {
     expect(() => deserializeState('not json')).toThrow();
+  });
+});
+
+// ─── Named save slots ────────────────────────────────────────────────────────
+
+describe('GameService — named save slots', () => {
+  it('save() writes to zork1-saves (not the legacy zork1-save key)', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.save();
+    expect(storage.getItem('zork1-saves')).not.toBeNull();
+    expect(storage.getItem('zork1-save')).toBeNull();
+  });
+
+  it('save() returns true on success', () => {
+    const svc = new GameService(makeStorage());
+    expect(svc.save()).toBe(true);
+  });
+
+  it('save() and restore() with a named slot round-trips the room', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.processCommand('north');
+    const savedHere = svc.getState().here;
+    svc.save('adventure');
+    svc.processCommand('north');
+    expect(svc.getState().here).not.toBe(savedHere);
+    svc.restore('adventure');
+    expect(svc.getState().here).toBe(savedHere);
+  });
+
+  it('restore() with an unknown slot name returns false', () => {
+    const svc = new GameService(makeStorage());
+    expect(svc.restore('nonexistent')).toBe(false);
+  });
+
+  it('multiple named slots are stored and restored independently', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+
+    svc.processCommand('north');
+    const here1 = svc.getState().here;
+    svc.save('slot1');
+
+    svc.processCommand('north');
+    const here2 = svc.getState().here;
+    svc.save('slot2');
+
+    svc.restore('slot1');
+    expect(svc.getState().here).toBe(here1);
+
+    svc.restore('slot2');
+    expect(svc.getState().here).toBe(here2);
+  });
+
+  it('save() returns false when at 5-slot cap with a new slot name', () => {
+    const svc = new GameService(makeStorage());
+    svc.save('a');
+    svc.save('b');
+    svc.save('c');
+    svc.save('d');
+    svc.save('e');
+    expect(svc.save('f')).toBe(false);
+  });
+
+  it('save() returns true when overwriting an existing slot at cap', () => {
+    const svc = new GameService(makeStorage());
+    svc.save('a');
+    svc.save('b');
+    svc.save('c');
+    svc.save('d');
+    svc.save('e');
+    expect(svc.save('a')).toBe(true);
+  });
+
+  it('saves command lists the available slot names', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.save('run1');
+    const [output] = svc.processCommand('saves');
+    expect(output).toContain('run1');
+  });
+
+  it('saves command returns a no-saves message when empty', () => {
+    const [output] = new GameService(makeStorage()).processCommand('saves');
+    expect(output).toBe('No saved games.');
+  });
+
+  it('save <name> command saves to the named slot', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.processCommand('north');
+    const savedHere = svc.getState().here;
+    svc.processCommand('save checkpoint');
+    svc.processCommand('north');
+    svc.processCommand('restore checkpoint');
+    expect(svc.getState().here).toBe(savedHere);
+  });
+
+  it('restore <name> command returns Restored. on success', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.processCommand('north');
+    svc.processCommand('save run1');
+    svc.processCommand('north');
+    const [msg] = svc.processCommand('restore run1');
+    expect(msg).toBe('Restored.');
+  });
+
+  it('migrates legacy zork1-save key to the quick slot on restore', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.processCommand('north');
+    const savedHere = svc.getState().here;
+    storage.setItem('zork1-save', serializeState(svc.getState()));
+
+    const svc2 = new GameService(storage);
+    svc2.processCommand('north');
+    const ok = svc2.restore('quick');
+    expect(ok).toBe(true);
+    expect(svc2.getState().here).toBe(savedHere);
+  });
+
+  it('listSlotsData returns an empty array when no saves exist', () => {
+    const svc = new GameService(makeStorage());
+    expect(svc.listSlotsData()).toEqual([]);
+  });
+
+  it('listSlotsData returns slot info after saving', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.processCommand('north');
+    svc.save('myslot');
+    const slots = svc.listSlotsData();
+    expect(slots).toHaveLength(1);
+    expect(slots[0].name).toBe('myslot');
+    expect(slots[0].room).toBe(svc.getState().here);
+    expect(typeof slots[0].timestamp).toBe('number');
   });
 });

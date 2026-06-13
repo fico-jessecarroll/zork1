@@ -16,8 +16,8 @@ import { vTake, vDrop, vInventory } from '../engine/verbs/inventory';
 import { vExamine, vRead, vLook } from '../engine/verbs/examine';
 import { vWalk } from '../engine/verbs/movement';
 import {
-  vScore, vQuit, vSave, vRestore, vVerbose, vBrief, vWait,
-  SIGNAL_SAVE, SIGNAL_RESTORE, SIGNAL_QUIT,
+  vScore, vQuit, vSave, vRestore, vSavesList, vVerbose, vBrief, vWait,
+  SIGNAL_SAVE_PREFIX, SIGNAL_RESTORE_PREFIX, SIGNAL_SAVES_LIST, SIGNAL_QUIT,
 } from '../engine/verbs/meta';
 import { clocker } from '../engine/clock';
 import { OBJECTS } from '../engine/data/objects';
@@ -25,7 +25,9 @@ import { rooms } from '../engine/data/rooms';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const SAVE_KEY = 'zork1-save';
+const SAVES_KEY = 'zork1-saves';
+const LEGACY_SAVE_KEY = 'zork1-save';
+const MAX_SLOTS = 5;
 const UNDO_DEPTH = 10;
 
 // ─── Direction helpers ───────────────────────────────────────────────────────
@@ -144,6 +146,11 @@ type SaveData = {
   superBrief: boolean;
 };
 
+type SlotEntry = SaveData & { timestamp: number; room: string };
+type SavesStore = Record<string, SlotEntry>;
+
+export type SlotInfo = { name: string; timestamp: number; room: string; score: number };
+
 export function serializeState(state: GameState): string {
   const data: SaveData = {
     objectParents: Array.from(state.objects.entries())
@@ -223,8 +230,9 @@ function dispatchCommand(cmd: string, state: GameState): [GameState, string] {
     case 'read':                   return vRead(state, findObj(noun, state));
     case 'score':                  return vScore(state);
     case 'quit': case 'q':         return vQuit(state);
-    case 'save':                   return vSave(state);
-    case 'restore':                return vRestore(state);
+    case 'save':                   return vSave(state, noun.trim() || 'quick');
+    case 'restore':                return vRestore(state, noun.trim() || 'quick');
+    case 'saves':                  return vSavesList(state);
     case 'verbose':                return vVerbose(state);
     case 'brief':                  return vBrief(state);
     case 'wait': case 'z':         return vWait(state);
@@ -273,12 +281,17 @@ export class GameService {
     clocker(this.state);
 
     // Handle engine signals from meta verbs
-    if (output === SIGNAL_SAVE) {
-      this.save();
-      return ['Saved.'];
+    if (output.startsWith(SIGNAL_SAVE_PREFIX)) {
+      const slot = output.slice(SIGNAL_SAVE_PREFIX.length);
+      const ok = this.save(slot);
+      return [ok ? 'Saved.' : `Cannot save: ${MAX_SLOTS} slots are full. Use "saves" to see them.`];
     }
-    if (output === SIGNAL_RESTORE) {
-      return [this.restore() ? 'Restored.' : 'No saved game found.'];
+    if (output.startsWith(SIGNAL_RESTORE_PREFIX)) {
+      const slot = output.slice(SIGNAL_RESTORE_PREFIX.length);
+      return [this.restore(slot) ? 'Restored.' : 'No saved game found.'];
+    }
+    if (output === SIGNAL_SAVES_LIST) {
+      return [this.listSlots()];
     }
     if (output === SIGNAL_QUIT) {
       return ['Thanks for playing!'];
@@ -293,21 +306,67 @@ export class GameService {
     return [output];
   }
 
-  /** Persist current state to localStorage. */
-  save(): void {
-    this.storage.setItem(SAVE_KEY, serializeState(this.state));
+  /** Persist current state to the named slot. Returns false if the slot cap is reached. */
+  save(slot = 'quick'): boolean {
+    const store = this.loadStore();
+    const isNew = !(slot in store);
+    if (isNew && Object.keys(store).length >= MAX_SLOTS) return false;
+    const data = JSON.parse(serializeState(this.state)) as SaveData;
+    store[slot] = { ...data, timestamp: Date.now(), room: this.state.here };
+    this.storage.setItem(SAVES_KEY, JSON.stringify(store));
+    return true;
   }
 
-  /** Load state from localStorage. Returns true on success. */
-  restore(): boolean {
-    const json = this.storage.getItem(SAVE_KEY);
-    if (!json) return false;
+  /** Load state from the named slot. Returns true on success. */
+  restore(slot = 'quick'): boolean {
+    this.migrateLegacySave();
+    const store = this.loadStore();
+    const entry = store[slot];
+    if (!entry) return false;
     try {
-      this.state = deserializeState(json);
+      this.state = deserializeState(JSON.stringify(entry));
       return true;
     } catch {
       return false;
     }
+  }
+
+  /** Return structured slot data for UI display. */
+  listSlotsData(): SlotInfo[] {
+    const store = this.loadStore();
+    return Object.entries(store).map(([name, entry]) => ({
+      name,
+      timestamp: entry.timestamp,
+      room: entry.room,
+      score: entry.score,
+    }));
+  }
+
+  private listSlots(): string {
+    const slots = this.listSlotsData();
+    if (slots.length === 0) return 'No saved games.';
+    return slots.map(s => {
+      const when = new Date(s.timestamp).toLocaleString();
+      return `${s.name}: ${s.room} — score ${s.score} (${when})`;
+    }).join('\n');
+  }
+
+  private loadStore(): SavesStore {
+    const json = this.storage.getItem(SAVES_KEY);
+    if (!json) return {};
+    try { return JSON.parse(json) as SavesStore; } catch { return {}; }
+  }
+
+  private migrateLegacySave(): void {
+    const legacy = this.storage.getItem(LEGACY_SAVE_KEY);
+    if (!legacy) return;
+    const store = this.loadStore();
+    if ('quick' in store) return;
+    try {
+      const data = JSON.parse(legacy) as SaveData;
+      store['quick'] = { ...data, timestamp: 0, room: data.here };
+      this.storage.setItem(SAVES_KEY, JSON.stringify(store));
+    } catch { /* ignore corrupt legacy data */ }
   }
 
   /** Step back one command via the undo stack. Returns true on success. */

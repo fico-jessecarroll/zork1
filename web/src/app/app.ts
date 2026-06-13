@@ -2,7 +2,8 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { TerminalComponent } from './terminal/terminal.component';
 import { CheatSheetComponent } from './cheat-sheet/cheat-sheet.component';
 import { HintsComponent } from './hints/hints.component';
-import { GameService } from './game.service';
+import { SaveSlotsComponent } from './save-slots/save-slots.component';
+import { GameService, SlotInfo } from './game.service';
 import { GameState } from '../engine/types';
 import { rooms } from '../engine/data/rooms';
 
@@ -12,7 +13,7 @@ const ROOM_NAME_MAP = new Map<string, string>(
 
 @Component({
   selector: 'app-root',
-  imports: [TerminalComponent, CheatSheetComponent, HintsComponent],
+  imports: [TerminalComponent, CheatSheetComponent, HintsComponent, SaveSlotsComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -28,6 +29,7 @@ export class App implements OnInit {
     return { objectLocations: new Map(), flagOverrides: new Map(), score: s.score, moves: s.moves, winner: '', here: s.here };
   }
   get roomName() { return ROOM_NAME_MAP.get(this.game.getState().here) ?? this.game.getState().here; }
+  get saveSlots(): SlotInfo[] { return this.game.listSlotsData(); }
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -39,5 +41,14 @@ export class App implements OnInit {
   onCommand(cmd: string): void {
     const lines = this.game.processCommand(cmd);
     lines.forEach(l => this.terminal.addResponse(l));
+  }
+
+  onRestoreSlot(slotName: string): void {
+    const lines = this.game.processCommand('restore ' + slotName);
+    lines.forEach(l => this.terminal.addResponse(l));
+    if (lines[0] === 'Restored.') {
+      const [, roomDesc] = [null, this.game.processCommand('look')[0]];
+      this.terminal.addResponse(roomDesc);
+    }
   }
 }

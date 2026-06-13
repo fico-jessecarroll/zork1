@@ -1,0 +1,21 @@
+<div class="saves-container">
+  <button class="saves-toggle" (click)="toggle()">
+    {{ isOpen ? '▲' : '▼' }} Saves
+  </button>
+
+  <div class="saves-panel" *ngIf="isOpen">
+    <ng-container *ngIf="slots.length > 0; else noSaves">
+      <div *ngFor="let slot of slots" class="slot-row">
+        <div class="slot-info">
+          <span class="slot-name">{{ slot.name }}</span>
+          <span class="slot-meta">{{ slot.room }} · score {{ slot.score }}</span>
+          <span class="slot-date">{{ formatDate(slot.timestamp) }}</span>
+        </div>
+        <button class="restore-btn" (click)="restoreSlot.emit(slot.name)">Restore</button>
+      </div>
+    </ng-container>
+    <ng-template #noSaves>
+      <div class="no-saves">No saved games.</div>
+    </ng-template>
+  </div>
+</div>

@@ -1,10 +1,15 @@
 import { GameState } from './types';
 
 /** Signal values returned as the output string to indicate engine-level actions. */
-export const SIGNAL_QUIT    = '@@QUIT';
-export const SIGNAL_SAVE    = '@@SAVE';
-export const SIGNAL_RESTORE = '@@RESTORE';
-export const SIGNAL_RESTART = '@@RESTART';
+export const SIGNAL_QUIT           = '@@QUIT';
+export const SIGNAL_SAVE_PREFIX    = '@@SAVE:';
+export const SIGNAL_RESTORE_PREFIX = '@@RESTORE:';
+export const SIGNAL_SAVES_LIST     = '@@SAVES';
+export const SIGNAL_RESTART        = '@@RESTART';
+/** @deprecated Use SIGNAL_SAVE_PREFIX; kept for any external references. */
+export const SIGNAL_SAVE    = '@@SAVE:quick';
+/** @deprecated Use SIGNAL_RESTORE_PREFIX; kept for any external references. */
+export const SIGNAL_RESTORE = '@@RESTORE:quick';
 
 /** V-SCORE — display current score. */
 export function vScore(state: GameState): [GameState, string] {
@@ -16,14 +21,19 @@ export function vQuit(state: GameState): [GameState, string] {
   return [state, SIGNAL_QUIT];
 }
 
-/** V-SAVE — signal the engine to save state. */
-export function vSave(state: GameState): [GameState, string] {
-  return [state, SIGNAL_SAVE];
+/** V-SAVE — signal the engine to save state to the given slot (default: 'quick'). */
+export function vSave(state: GameState, slot = 'quick'): [GameState, string] {
+  return [state, SIGNAL_SAVE_PREFIX + slot];
 }
 
-/** V-RESTORE — signal the engine to restore saved state. */
-export function vRestore(state: GameState): [GameState, string] {
-  return [state, SIGNAL_RESTORE];
+/** V-RESTORE — signal the engine to restore state from the given slot (default: 'quick'). */
+export function vRestore(state: GameState, slot = 'quick'): [GameState, string] {
+  return [state, SIGNAL_RESTORE_PREFIX + slot];
+}
+
+/** V-SAVES — signal the engine to list all save slots. */
+export function vSavesList(state: GameState): [GameState, string] {
+  return [state, SIGNAL_SAVES_LIST];
 }
 
 /** V-RESTART — signal the engine to restart the game. */

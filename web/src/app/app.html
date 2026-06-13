@@ -8,6 +8,7 @@
   ></app-terminal>
   <div class="sidebar">
     <app-cheat-sheet></app-cheat-sheet>
+    <app-save-slots [slots]="saveSlots" (restoreSlot)="onRestoreSlot($event)"></app-save-slots>
     <app-hints [roomId]="roomId"></app-hints>
   </div>
 </div>
