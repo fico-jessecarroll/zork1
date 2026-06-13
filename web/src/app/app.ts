@@ -4,6 +4,7 @@ import { CheatSheetComponent } from './cheat-sheet/cheat-sheet.component';
 import { HintsComponent } from './hints/hints.component';
 import { SaveSlotsComponent } from './save-slots/save-slots.component';
 import { GameService, SlotInfo } from './game.service';
+import { AudioService } from './audio.service';
 import { GameState } from '../engine/types';
 import { rooms } from '../engine/data/rooms';
 
@@ -21,6 +22,7 @@ export class App implements OnInit {
   @ViewChild('terminal') private terminal!: TerminalComponent;
 
   protected readonly game = new GameService();
+  protected readonly audio = new AudioService();
 
   get roomId(): string { return this.game.getState().here; }
 
@@ -30,6 +32,7 @@ export class App implements OnInit {
   }
   get roomName() { return ROOM_NAME_MAP.get(this.game.getState().here) ?? this.game.getState().here; }
   get saveSlots(): SlotInfo[] { return this.game.listSlotsData(); }
+  get isMuted(): boolean { return this.audio.isMuted(); }
 
   ngOnInit(): void {
     setTimeout(() => {
@@ -39,8 +42,10 @@ export class App implements OnInit {
   }
 
   onCommand(cmd: string): void {
+    this.audio.enable();
     const lines = this.game.processCommand(cmd);
     lines.forEach(l => this.terminal.addResponse(l));
+    this.audio.playRoom(this.game.getState().here);
   }
 
   onRestoreSlot(slotName: string): void {
@@ -49,6 +54,11 @@ export class App implements OnInit {
     if (lines[0] === 'Restored.') {
       const [, roomDesc] = [null, this.game.processCommand('look')[0]];
       this.terminal.addResponse(roomDesc);
+      this.audio.playRoom(this.game.getState().here);
     }
+  }
+
+  toggleMute(): void {
+    this.audio.toggle();
   }
 }

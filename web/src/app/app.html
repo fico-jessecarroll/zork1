@@ -10,5 +10,8 @@
     <app-cheat-sheet></app-cheat-sheet>
     <app-save-slots [slots]="saveSlots" (restoreSlot)="onRestoreSlot($event)"></app-save-slots>
     <app-hints [roomId]="roomId"></app-hints>
+    <button class="mute-btn" (click)="toggleMute()" [attr.aria-label]="isMuted ? 'Unmute' : 'Mute'">
+      {{ isMuted ? '🔇' : '🔊' }}
+    </button>
   </div>
 </div>
