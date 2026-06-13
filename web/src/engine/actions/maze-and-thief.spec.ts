@@ -505,3 +505,179 @@ describe('MAZE_ROOM_IDS', () => {
     }
   });
 });
+
+// ── Thief behaviour branches (ZORK1-3 durability coverage) ──────────────────
+//
+// These exercise the previously-uncovered ROB-MAZE / STEAL-JUNK / DROP-JUNK
+// paths and the THIEF-VS-ADVENTURER / I-THIEF decision branches. The thief is
+// pure given an injected rng, so each branch is driven deterministically by a
+// fixed roll sequence rather than mocking any internal collaborator.
+
+/** rng returning each value in turn, then `fallback` once exhausted. */
+function seqRng(values: number[], fallback = 0.99): () => number {
+  let i = 0;
+  return () => (i < values.length ? values[i++] : fallback);
+}
+
+describe('robMaze — ROB-MAZE', () => {
+  const MAZE_ROOM = 'maze-1';
+
+  function mazeState() {
+    return makeState([
+      [MAZE_ROOM, makeObj(MAZE_ROOM, null, [RLANDBIT, MAZEBIT, TOUCHBIT])],
+      ['coin', makeObj('coin', MAZE_ROOM, [TAKEBIT])],
+    ]);
+  }
+
+  it('steals a takeable item when notice (<0.4) and steal (<0.6) rolls pass', () => {
+    const { state, message } = robMaze(MAZE_ROOM, mazeState(), seqRng([0.3, 0.5]));
+    expect(state.objects.get('coin')?.parent).toBe(OBJ_THIEF);
+    expect(state.objects.get('coin')?.flags.has(INVISIBLE)).toBe(true);
+    expect(message).toContain('fine coin');
+  });
+
+  it('notices but leaves the item when the steal roll fails (>=0.6)', () => {
+    const { state, message } = robMaze(MAZE_ROOM, mazeState(), seqRng([0.3, 0.7]));
+    expect(state.objects.get('coin')?.parent).toBe(MAZE_ROOM);
+    expect(message).toContain('fine coin');
+  });
+
+  it('does nothing when the notice roll fails (>=0.4)', () => {
+    const { state, message } = robMaze(MAZE_ROOM, mazeState(), seqRng([0.9]));
+    expect(state.objects.get('coin')?.parent).toBe(MAZE_ROOM);
+    expect(message).toBeNull();
+  });
+
+  it('ignores invisible items', () => {
+    const st = makeState([
+      [MAZE_ROOM, makeObj(MAZE_ROOM, null, [RLANDBIT, MAZEBIT])],
+      ['coin', makeObj('coin', MAZE_ROOM, [TAKEBIT, INVISIBLE])],
+    ]);
+    const { state, message } = robMaze(MAZE_ROOM, st, seqRng([0.1, 0.1]));
+    expect(state.objects.get('coin')?.parent).toBe(MAZE_ROOM);
+    expect(message).toBeNull();
+  });
+});
+
+describe('stealJunk — STEAL-JUNK', () => {
+  it('steals a worthless item on a low roll and announces in the player room', () => {
+    const st = makeState([['junk', makeObj('junk', ROOM_A, [TAKEBIT])]]);
+    const { state, message } = stealJunk(ROOM_A, ROOM_A, st, seqRng([0.05]));
+    expect(state.objects.get('junk')?.parent).toBe(OBJ_THIEF);
+    expect(state.objects.get('junk')?.flags.has(INVISIBLE)).toBe(true);
+    expect(message).toBe('You suddenly notice that the junk vanished.');
+  });
+
+  it('always steals the stiletto with no roll, silently outside the player room', () => {
+    const st = makeState([[OBJ_STILETTO, makeObj(OBJ_STILETTO, ROOM_C, [TAKEBIT])]]);
+    const { state, message } = stealJunk(ROOM_C, ROOM_A, st, seqRng([]));
+    expect(state.objects.get(OBJ_STILETTO)?.parent).toBe(OBJ_THIEF);
+    expect(message).toBeNull();
+  });
+
+  it('leaves the item when the roll is too high', () => {
+    const st = makeState([['junk', makeObj('junk', ROOM_C, [TAKEBIT])]]);
+    const { state, message } = stealJunk(ROOM_C, ROOM_A, st, seqRng([0.5]));
+    expect(state.objects.get('junk')?.parent).toBe(ROOM_C);
+    expect(message).toBeNull();
+  });
+});
+
+describe('dropJunk — DROP-JUNK', () => {
+  it('drops a worthless item on a low roll and announces in the player room', () => {
+    const st = makeState([['trinket', makeObj('trinket', OBJ_THIEF, [INVISIBLE])]]);
+    const { state, message } = dropJunk(ROOM_A, ROOM_A, st, seqRng([0.2]));
+    expect(state.objects.get('trinket')?.parent).toBe(ROOM_A);
+    expect(state.objects.get('trinket')?.flags.has(INVISIBLE)).toBe(false);
+    expect(message).toContain('valueless');
+  });
+
+  it('keeps items when the roll is high', () => {
+    const st = makeState([['trinket', makeObj('trinket', OBJ_THIEF)]]);
+    const { state, message } = dropJunk(ROOM_A, ROOM_A, st, seqRng([0.9]));
+    expect(state.objects.get('trinket')?.parent).toBe(OBJ_THIEF);
+    expect(message).toBeNull();
+  });
+});
+
+describe('iThief — Case A: treasure-room deposit and hack', () => {
+  it('reveals treasure-room items and deposits booty, surfacing the thief there', () => {
+    const st = withTvalue(
+      makeState(
+        [
+          [OBJ_THIEF, makeObj(OBJ_THIEF, ROOM_TREASURE_ROOM)],
+          ['chalice', makeObj('chalice', OBJ_THIEF)],
+          ['painting', makeObj('painting', ROOM_TREASURE_ROOM, [INVISIBLE])],
+        ],
+        { here: ROOM_A },
+      ),
+      'chalice',
+      10,
+    );
+    const allRooms = [ROOM_A, ROOM_B, ROOM_C, ROOM_TREASURE_ROOM];
+    const { state } = iThief(st, allRooms, alwaysRng(0.99));
+
+    // Booty (chalice) is deposited and the hidden painting is revealed.
+    expect(state.objects.get('chalice')?.parent).toBe(ROOM_TREASURE_ROOM);
+    expect(state.objects.get('painting')?.flags.has(INVISIBLE)).toBe(false);
+    // HACK-TREASURES clears INVISIBLE on every treasure-room item, and the thief
+    // is itself in the room — so it becomes visible and stays put (no wander).
+    expect(state.objects.get(OBJ_THIEF)?.flags.has(INVISIBLE)).toBe(false);
+    expect(state.objects.get(OBJ_THIEF)?.parent).toBe(ROOM_TREASURE_ROOM);
+  });
+});
+
+describe('iThief — Case B: thief confronts the player', () => {
+  it('announces its presence when invisible and the roll is low', () => {
+    const st = makeState([[OBJ_THIEF, makeObj(OBJ_THIEF, ROOM_A, [INVISIBLE])]]);
+    const { state, messages } = iThief(st, [ROOM_A, ROOM_B, ROOM_C], seqRng([0.2]));
+    expect(messages[0]).toContain('dead body');
+    expect(state.objects.get(OBJ_THIEF)?.flags.has(INVISIBLE)).toBe(false);
+    expect(state.thiefHere).toBe(true);
+  });
+
+  it('leaves disgusted when visible and the leave-roll is low', () => {
+    const st = makeState([[OBJ_THIEF, makeObj(OBJ_THIEF, ROOM_A)]]);
+    const { state, messages } = iThief(st, [ROOM_A, ROOM_B, ROOM_C], seqRng([0.2]));
+    expect(messages[0]).toContain('disgusted');
+    expect(state.objects.get(OBJ_THIEF)?.flags.has(INVISIBLE)).toBe(true);
+    expect(state.thiefHere).toBe(false);
+  });
+
+  it('robs the room and leaves when already present and visible', () => {
+    const st = withTvalue(
+      makeState(
+        [
+          [OBJ_THIEF, makeObj(OBJ_THIEF, ROOM_A)],
+          ['jewel', makeObj('jewel', ROOM_A)],
+        ],
+        { thiefHere: true },
+      ),
+      'jewel',
+      5,
+    );
+    const { state, messages } = iThief(st, [ROOM_A, ROOM_B, ROOM_C], seqRng([0.2]));
+    expect(state.objects.get('jewel')?.parent).toBe(OBJ_THIEF);
+    expect(messages[0]).toContain('appropriated the valuables');
+    expect(state.objects.get(OBJ_THIEF)?.flags.has(INVISIBLE)).toBe(true);
+    expect(state.thiefHere).toBe(false);
+  });
+});
+
+describe('iThief — Case C: maze robbery while wandering', () => {
+  it('uses ROB-MAZE when both thief and player are in maze rooms', () => {
+    const st = makeState(
+      [
+        ['maze-1', makeObj('maze-1', null, [RLANDBIT, MAZEBIT, TOUCHBIT])],
+        ['maze-2', makeObj('maze-2', null, [RLANDBIT, MAZEBIT, TOUCHBIT])],
+        ['maze-3', makeObj('maze-3', null, [RLANDBIT, MAZEBIT])],
+        [OBJ_THIEF, makeObj(OBJ_THIEF, 'maze-2', [INVISIBLE])],
+        ['key', makeObj('key', 'maze-2', [TAKEBIT])],
+      ],
+      { here: 'maze-1' },
+    );
+    const { state, messages } = iThief(st, ['maze-1', 'maze-2', 'maze-3'], seqRng([0.3, 0.5]));
+    expect(state.objects.get('key')?.parent).toBe(OBJ_THIEF);
+    expect(messages.some((m) => m.includes('fine key'))).toBe(true);
+  });
+});
