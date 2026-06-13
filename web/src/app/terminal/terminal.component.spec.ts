@@ -107,10 +107,10 @@ describe('TerminalComponent', () => {
   });
 
   it('updates score and moves when gameState changes', () => {
-    component.gameState = makeState({ score: 0, moves: 0 });
+    fixture.componentRef.setInput('gameState', makeState({ score: 0, moves: 0 }));
     fixture.detectChanges();
 
-    component.gameState = makeState({ score: 5, moves: 3 });
+    fixture.componentRef.setInput('gameState', makeState({ score: 5, moves: 3 }));
     fixture.detectChanges();
 
     const el: HTMLElement = fixture.debugElement.query(By.css('.score-moves')).nativeElement;
@@ -130,14 +130,14 @@ describe('TerminalComponent', () => {
   // ---------------------------------------------------------------------------
 
   it('calls submit on Enter keydown', () => {
-    const spy = jest.spyOn(component, 'submit');
+    const spy = vi.spyOn(component, 'submit');
     component.inputValue = 'inventory';
     component.handleKeydown(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(spy).toHaveBeenCalled();
   });
 
   it('does not call submit on other keys', () => {
-    const spy = jest.spyOn(component, 'submit');
+    const spy = vi.spyOn(component, 'submit');
     component.handleKeydown(new KeyboardEvent('keydown', { key: 'a' }));
     expect(spy).not.toHaveBeenCalled();
   });

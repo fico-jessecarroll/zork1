@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  height: 100dvh;
+}
+
+.game-layout {
+  display: flex;
+  height: 100%;
+}
+
+.terminal-pane {
+  flex: 1;
+  min-width: 0;
+}
+
+.cheat-sheet-pane {
+  width: 160px;
+  flex-shrink: 0;
+}
