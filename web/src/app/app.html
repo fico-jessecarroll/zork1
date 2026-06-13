@@ -1,6 +1,10 @@
-<app-terminal
-  #terminal
-  [gameState]="gameState"
-  [roomName]="roomName"
-  (command)="onCommand($event)"
-></app-terminal>
+<div class="game-layout">
+  <app-terminal
+    #terminal
+    class="terminal-pane"
+    [gameState]="gameState"
+    [roomName]="roomName"
+    (command)="onCommand($event)"
+  ></app-terminal>
+  <app-cheat-sheet class="cheat-sheet-pane"></app-cheat-sheet>
+</div>

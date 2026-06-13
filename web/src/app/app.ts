@@ -1,5 +1,6 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { TerminalComponent } from './terminal/terminal.component';
+import { CheatSheetComponent } from './cheat-sheet/cheat-sheet.component';
 import { GameService } from './game.service';
 import { GameState } from '../engine/types';
 import { rooms } from '../engine/data/rooms';
@@ -10,7 +11,7 @@ const ROOM_NAME_MAP = new Map<string, string>(
 
 @Component({
   selector: 'app-root',
-  imports: [TerminalComponent],
+  imports: [TerminalComponent, CheatSheetComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

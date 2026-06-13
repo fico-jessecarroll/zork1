@@ -1,0 +1,57 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.cheat-sheet {
+  height: 100%;
+  background: #0d0d0d;
+  color: #ffb300;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-left: 1px solid #3a3000;
+  overflow-y: auto;
+  padding: 10px 8px;
+  box-sizing: border-box;
+}
+
+.sheet-title {
+  color: #ffd54f;
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 1px solid #3a3000;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section {
+  margin-bottom: 12px;
+}
+
+.section-heading {
+  color: #ffd54f;
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+
+.cmd {
+  color: #64dd17;
+  white-space: nowrap;
+}
+
+.desc {
+  color: #7a6a30;
+  font-size: 11px;
+  padding-left: 4px;
+}
