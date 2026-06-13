@@ -31,6 +31,8 @@ export class TerminalComponent implements AfterViewChecked {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('inputEl') inputEl!: ElementRef<HTMLInputElement>;
 
+  theme: 'amber' | 'green' = (localStorage.getItem('zork1-theme') as 'amber' | 'green') ?? 'amber';
+
   transcript: TranscriptLine[] = [];
   inputValue = '';
 
@@ -38,6 +40,11 @@ export class TerminalComponent implements AfterViewChecked {
   private cmdHistory: string[] = [];
   private historyIndex = -1;
   private draft = '';
+
+  toggleTheme(): void {
+    this.theme = this.theme === 'amber' ? 'green' : 'amber';
+    localStorage.setItem('zork1-theme', this.theme);
+  }
 
   addResponse(text: string): void {
     this.transcript.push({ type: 'response', text });

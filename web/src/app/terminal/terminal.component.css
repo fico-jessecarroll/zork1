@@ -4,14 +4,47 @@
 }
 
 .terminal-wrapper {
+  /* amber defaults */
+  --c-bg: #0d0d0d;
+  --c-status-bg: #1a1a00;
+  --c-border: #3a3000;
+  --c-text: #ffb300;
+  --c-text-bright: #ffd54f;
+  --c-input: #64dd17;
+
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #0d0d0d;
-  color: #ffb300;
+  background: var(--c-bg);
+  color: var(--c-text);
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
   box-sizing: border-box;
+}
+
+.terminal-wrapper.theme-green {
+  --c-bg: #030d03;
+  --c-status-bg: #001a00;
+  --c-border: #003300;
+  --c-text: #00e040;
+  --c-text-bright: #00ff60;
+  --c-input: #00cc33;
+}
+
+.terminal-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
 }
 
 .status-bar {
@@ -19,9 +52,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 10px;
-  background: #1a1a00;
-  border-bottom: 1px solid #3a3000;
-  color: #ffd54f;
+  background: var(--c-status-bg);
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-text-bright);
   font-weight: bold;
   flex-shrink: 0;
 }
@@ -48,23 +81,23 @@
 }
 
 .line--input {
-  color: #64dd17;
+  color: var(--c-input);
 }
 
 .line--response {
-  color: #ffb300;
+  color: var(--c-text);
 }
 
 .input-row {
   display: flex;
   align-items: center;
   padding: 6px 10px;
-  border-top: 1px solid #3a3000;
+  border-top: 1px solid var(--c-border);
   flex-shrink: 0;
 }
 
 .prompt {
-  color: #64dd17;
+  color: var(--c-input);
   margin-right: 6px;
   font-weight: bold;
 }
@@ -74,8 +107,23 @@
   background: transparent;
   border: none;
   outline: none;
-  color: #64dd17;
+  color: var(--c-input);
   font-family: inherit;
   font-size: inherit;
-  caret-color: #64dd17;
+  caret-color: var(--c-input);
+}
+
+.theme-btn {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-bright);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.theme-btn:hover {
+  background: var(--c-border);
 }

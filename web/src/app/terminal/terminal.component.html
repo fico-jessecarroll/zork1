@@ -1,9 +1,12 @@
-<div class="terminal-wrapper">
+<div class="terminal-wrapper" [ngClass]="'theme-' + theme">
   <div class="status-bar">
     <span class="room-name">{{ roomName }}</span>
     <span class="score-moves" *ngIf="gameState">
       Score: {{ gameState.score }}&nbsp;&nbsp;Moves: {{ gameState.moves }}
     </span>
+    <button class="theme-btn" (click)="toggleTheme()" [attr.aria-label]="'Switch to ' + (theme === 'amber' ? 'green' : 'amber') + ' theme'">
+      {{ theme === 'amber' ? '◉ GREEN' : '◉ AMBER' }}
+    </button>
   </div>
 
   <div class="transcript" #scrollContainer>
