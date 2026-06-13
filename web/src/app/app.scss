@@ -20,3 +20,18 @@
   flex-direction: column;
   overflow-y: auto;
 }
+
+.mute-btn {
+  margin-top: auto;
+  width: 100%;
+  background: #1a1a00;
+  border: none;
+  border-top: 1px solid #3a3000;
+  color: #ffd54f;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+}
+.mute-btn:hover {
+  background: #2a2a00;
+}
