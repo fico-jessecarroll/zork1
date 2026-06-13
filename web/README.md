@@ -54,6 +54,20 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## Deploying to GitHub Pages
+
+The app is configured to deploy to `https://<username>.github.io/zork1/`.
+
+**Prerequisites:** push access to the GitHub repository.
+
+Build and deploy:
+
+```bash
+npm run deploy
+```
+
+This runs `ng build --base-href /zork1/` and then publishes the `dist/zork1` output to the `gh-pages` branch via `angular-cli-ghpages`. GitHub Pages will serve the app from the `gh-pages` branch automatically once it is enabled in the repository settings (Settings → Pages → Source: Deploy from branch → `gh-pages`).
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
