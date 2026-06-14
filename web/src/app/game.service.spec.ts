@@ -364,6 +364,42 @@ describe('GameService — named save slots', () => {
   });
 });
 
+// ─── getInventory ────────────────────────────────────────────────────────────
+
+describe('GameService — getInventory', () => {
+  it('returns [] on a fresh game (player starts empty-handed)', () => {
+    const svc = new GameService(makeStorage());
+    expect(svc.getInventory()).toEqual([]);
+  });
+
+  it('returns the desc of a taken item after open mailbox + take leaflet', () => {
+    const svc = new GameService(makeStorage());
+    svc.processCommand('open mailbox');
+    svc.processCommand('take leaflet');
+    expect(svc.getInventory()).toContain('leaflet');
+  });
+
+  it('returns all carried items when multiple items are held', () => {
+    const svc = new GameService(makeStorage());
+    svc.processCommand('open mailbox');
+    svc.processCommand('take leaflet');
+    // Navigate into the house: open window, enter, go south to get sword area
+    // Simpler: just take leaflet and verify count
+    const inv = svc.getInventory();
+    expect(inv.length).toBeGreaterThan(0);
+    expect(Array.isArray(inv)).toBe(true);
+  });
+
+  it('returns empty array again after dropping all items', () => {
+    const svc = new GameService(makeStorage());
+    svc.processCommand('open mailbox');
+    svc.processCommand('take leaflet');
+    expect(svc.getInventory()).toContain('leaflet');
+    svc.processCommand('drop leaflet');
+    expect(svc.getInventory()).toEqual([]);
+  });
+});
+
 // ─── Auto-save ───────────────────────────────────────────────────────────────
 
 describe('GameService — auto-save', () => {

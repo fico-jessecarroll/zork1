@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.inv-container {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-top: 1px solid #3a3000;
+}
+
+.inv-header {
+  background: #1a1a00;
+  color: #ffd54f;
+  font-weight: bold;
+  padding: 6px 8px;
+}
+
+.inv-body {
+  background: #0d0d0d;
+  padding: 4px 8px;
+  color: #ffb300;
+}
+
+.inv-item {
+  padding: 1px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inv-empty {
+  color: #555;
+  font-style: italic;
+  padding: 1px 0;
+}

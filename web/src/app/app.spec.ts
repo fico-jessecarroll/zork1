@@ -38,6 +38,29 @@ describe('App', () => {
   });
 });
 
+describe('App — inventory widget', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+    }).compileComponents();
+  });
+
+  it('renders app-inventory element in the sidebar', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-inventory')).toBeTruthy();
+  });
+
+  it('inventory getter returns non-empty array after taking leaflet', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    app['game'].processCommand('open mailbox');
+    app['game'].processCommand('take leaflet');
+    expect(app.inventory.length).toBeGreaterThan(0);
+  });
+});
+
 describe('App — startup splash', () => {
   let fixture: ComponentFixture<App>;
   let terminal: TerminalComponent;
