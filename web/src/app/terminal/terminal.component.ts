@@ -32,6 +32,7 @@ export class TerminalComponent implements AfterViewChecked {
   @ViewChild('inputEl') inputEl!: ElementRef<HTMLInputElement>;
 
   theme: 'amber' | 'green' = (localStorage.getItem('zork1-theme') as 'amber' | 'green') ?? 'amber';
+  fontSize: number = Number(localStorage.getItem('zork1-font-size')) || 14;
 
   transcript: TranscriptLine[] = [];
   inputValue = '';
@@ -55,6 +56,20 @@ export class TerminalComponent implements AfterViewChecked {
   toggleTheme(): void {
     this.theme = this.theme === 'amber' ? 'green' : 'amber';
     localStorage.setItem('zork1-theme', this.theme);
+  }
+
+  increaseFontSize(): void {
+    if (this.fontSize < 20) {
+      this.fontSize += 2;
+      localStorage.setItem('zork1-font-size', String(this.fontSize));
+    }
+  }
+
+  decreaseFontSize(): void {
+    if (this.fontSize > 10) {
+      this.fontSize -= 2;
+      localStorage.setItem('zork1-font-size', String(this.fontSize));
+    }
   }
 
   addResponse(text: string): void {

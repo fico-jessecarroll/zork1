@@ -1,9 +1,11 @@
-<div class="terminal-wrapper" [ngClass]="'theme-' + theme">
+<div class="terminal-wrapper" [ngClass]="'theme-' + theme" [style.fontSize.px]="fontSize">
   <div class="status-bar">
     <span class="room-name">{{ roomName }}</span>
     <span class="score-moves" *ngIf="gameState">
       Score: {{ gameState.score }}&nbsp;&nbsp;Moves: {{ gameState.moves }}
     </span>
+    <button class="font-btn" (click)="decreaseFontSize()" aria-label="Decrease font size">A-</button>
+    <button class="font-btn" (click)="increaseFontSize()" aria-label="Increase font size">A+</button>
     <button class="theme-btn" (click)="toggleTheme()" [attr.aria-label]="'Switch to ' + (theme === 'amber' ? 'green' : 'amber') + ' theme'">
       {{ theme === 'amber' ? '◉ GREEN' : '◉ AMBER' }}
     </button>
