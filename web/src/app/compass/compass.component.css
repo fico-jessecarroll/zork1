@@ -1,0 +1,41 @@
+:host { display: block; }
+
+.compass-container {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-top: 1px solid #3a3000;
+}
+
+.compass-header {
+  background: #1a1a00;
+  color: #ffd54f;
+  font-weight: bold;
+  padding: 6px 8px;
+}
+
+.compass-grid {
+  background: #0d0d0d;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding: 6px 8px;
+}
+
+.compass-cell {
+  color: #444;
+  text-align: center;
+  padding: 3px 2px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+.compass-cell.available {
+  color: #a8d8a8;
+  font-weight: bold;
+}
+
+.compass-center {
+  color: #555;
+  font-size: 13px;
+}

@@ -1,0 +1,16 @@
+<div class="compass-container">
+  <div class="compass-header">Compass</div>
+  <div class="compass-grid">
+    <span class="compass-cell" [class.available]="isAvailable('nw')" data-dir="nw">NW</span>
+    <span class="compass-cell" [class.available]="isAvailable('north')" data-dir="north">N</span>
+    <span class="compass-cell" [class.available]="isAvailable('ne')" data-dir="ne">NE</span>
+
+    <span class="compass-cell" [class.available]="isAvailable('west')" data-dir="west">W</span>
+    <span class="compass-cell compass-center">✦</span>
+    <span class="compass-cell" [class.available]="isAvailable('east')" data-dir="east">E</span>
+
+    <span class="compass-cell" [class.available]="isAvailable('sw')" data-dir="sw">SW</span>
+    <span class="compass-cell" [class.available]="isAvailable('south')" data-dir="south">S</span>
+    <span class="compass-cell" [class.available]="isAvailable('se')" data-dir="se">SE</span>
+  </div>
+</div>
