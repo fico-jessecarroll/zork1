@@ -511,3 +511,103 @@ describe('GameService — hasAutoSave', () => {
     expect(svc.hasAutoSave()).toBe(true);
   });
 });
+
+// ─── Missing verb dispatch and utility verbs ──────────────────────────────────
+
+describe('GameService — missing verb dispatch and utility verbs', () => {
+  it('attack troll returns a message (not "I don\'t know...")', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('attack troll');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('throw sword at troll drops the sword and returns a message', () => {
+    const svc = new GameService(makeStorage());
+    // Navigate west-of-house -> north-of-house -> east-of-house -> kitchen -> living-room
+    svc.processCommand('north');
+    svc.processCommand('east');
+    svc.processCommand('west');
+    svc.processCommand('west');
+    svc.processCommand('take sword');
+    expect(svc.getState().objects.get('SWORD')?.parent).toBe('PLAYER');
+
+    const [msg] = svc.processCommand('throw sword at troll');
+    expect(msg).not.toContain("don't know");
+    expect(svc.getState().objects.get('SWORD')?.parent).not.toBe('PLAYER');
+  });
+
+  it('climb stairs returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('climb stairs');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('put leaflet in mailbox works when mailbox is open and leaflet is held', () => {
+    const svc = new GameService(makeStorage());
+    svc.processCommand('open mailbox');
+    svc.processCommand('take leaflet');
+    const [msg] = svc.processCommand('put leaflet in mailbox');
+    expect(msg).not.toContain("don't know");
+    expect(msg).toBe('Done.');
+  });
+
+  it('lock mailbox returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('lock mailbox');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('unlock mailbox returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('unlock mailbox');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('swim returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('swim');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('push boulder returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('push boulder');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('fill returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('fill');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('pour returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('pour');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('burn returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('burn');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('dig returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('dig');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('pull leaflet returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('pull leaflet');
+    expect(msg).not.toContain("don't know");
+  });
+
+  it('turn returns a message', () => {
+    const svc = new GameService(makeStorage());
+    const [msg] = svc.processCommand('turn');
+    expect(msg).not.toContain("don't know");
+  });
+});

@@ -11,10 +11,12 @@
  */
 
 import type { GameState, GameObject } from '../engine/verbs/types';
-import { vOpen, vClose } from '../engine/verbs/containers';
+import { vOpen, vClose, vPut, vLock, vUnlock } from '../engine/verbs/containers';
 import { vTake, vDrop, vInventory } from '../engine/verbs/inventory';
 import { vExamine, vRead, vLook } from '../engine/verbs/examine';
-import { vWalk } from '../engine/verbs/movement';
+import { vWalk, vClimb } from '../engine/verbs/movement';
+import { vAttack, vThrow } from '../engine/verbs/combat';
+import { vFill, vPour, vBurn, vDig, vSwim, vPush, vPull, vTurn } from '../engine/verbs/utility';
 import {
   vScore, vQuit, vSave, vRestore, vSavesList, vVerbose, vBrief, vWait,
   SIGNAL_SAVE_PREFIX, SIGNAL_RESTORE_PREFIX, SIGNAL_SAVES_LIST, SIGNAL_QUIT,
@@ -205,12 +207,26 @@ function findObj(noun: string, state: GameState): GameObject | undefined {
   return state.objects.get(id);
 }
 
+const IO_PREPS = new Set(['with', 'using', 'to', 'in', 'into', 'at']);
+
 function dispatchCommand(cmd: string, state: GameState): [GameState, string] {
   const tokens = cmd.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return [state, ''];
 
   const verb = tokens[0];
-  const noun = tokens.slice(1).join(' ');
+  const rest = tokens.slice(1);
+
+  // Parse indirect object: VERB NOUN PREP NOUN2 (preposition must follow at least one word)
+  const prepIdx = rest.findIndex((t, i) => i > 0 && IO_PREPS.has(t));
+  let noun: string;
+  let noun2: string;
+  if (prepIdx >= 0) {
+    noun = rest.slice(0, prepIdx).join(' ');
+    noun2 = rest.slice(prepIdx + 1).join(' ');
+  } else {
+    noun = rest.join(' ');
+    noun2 = '';
+  }
 
   const dirKey = noun === '' ? DIRECTIONS.get(verb) : undefined;
   if (dirKey !== undefined) return vWalk(state, DIR_OBJECTS.get(dirKey));
@@ -219,23 +235,40 @@ function dispatchCommand(cmd: string, state: GameState): [GameState, string] {
     return vWalk(state, DIR_OBJECTS.get(DIRECTIONS.get(noun)!));
   }
 
+  const prso = noun ? findObj(noun, state) : undefined;
+  const prsi = noun2 ? findObj(noun2, state) : undefined;
+
   switch (verb) {
-    case 'look': case 'l':         return vLook(state);
-    case 'inventory': case 'i':    return vInventory(state);
-    case 'take': case 'get':       return vTake(state, findObj(noun, state));
-    case 'drop':                   return vDrop(state, findObj(noun, state));
-    case 'open':                   return vOpen(state, findObj(noun, state));
-    case 'close':                  return vClose(state, findObj(noun, state));
-    case 'examine': case 'x':      return vExamine(state, findObj(noun, state));
-    case 'read':                   return vRead(state, findObj(noun, state));
-    case 'score':                  return vScore(state);
-    case 'quit': case 'q':         return vQuit(state);
-    case 'save':                   return vSave(state, noun.trim() || 'quick');
-    case 'restore':                return vRestore(state, noun.trim() || 'quick');
-    case 'saves':                  return vSavesList(state);
-    case 'verbose':                return vVerbose(state);
-    case 'brief':                  return vBrief(state);
-    case 'wait': case 'z':         return vWait(state);
+    case 'look': case 'l':                    return vLook(state);
+    case 'inventory': case 'i':               return vInventory(state);
+    case 'take': case 'get':                  return vTake(state, prso);
+    case 'drop':                              return vDrop(state, prso);
+    case 'open':                              return vOpen(state, prso);
+    case 'close':                             return vClose(state, prso);
+    case 'examine': case 'x':                return vExamine(state, prso);
+    case 'read':                              return vRead(state, prso);
+    case 'score':                             return vScore(state);
+    case 'quit': case 'q':                    return vQuit(state);
+    case 'save':                              return vSave(state, noun.trim() || 'quick');
+    case 'restore':                           return vRestore(state, noun.trim() || 'quick');
+    case 'saves':                             return vSavesList(state);
+    case 'verbose':                           return vVerbose(state);
+    case 'brief':                             return vBrief(state);
+    case 'wait': case 'z':                    return vWait(state);
+    case 'attack': case 'kill': case 'fight': return vAttack(state, prso, prsi);
+    case 'throw': case 'toss':               return vThrow(state, prso, prsi);
+    case 'climb':                             return vClimb(state, prso);
+    case 'put': case 'place': case 'insert':  return vPut(state, prso, prsi);
+    case 'lock':                              return vLock(state, prso, prsi);
+    case 'unlock':                            return vUnlock(state, prso, prsi);
+    case 'fill':                              return vFill(state, prso);
+    case 'pour':                              return vPour(state, prso, prsi);
+    case 'burn': case 'light':               return vBurn(state, prso);
+    case 'dig':                               return vDig(state, prso);
+    case 'swim':                              return vSwim(state);
+    case 'push': case 'press':               return vPush(state, prso);
+    case 'pull':                              return vPull(state, prso);
+    case 'turn': case 'spin': case 'rotate':  return vTurn(state, prso);
     default:
       return [state, `I don't know the word "${verb}".`];
   }
