@@ -314,6 +314,62 @@ describe('TerminalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Keyboard shortcuts
+  // ---------------------------------------------------------------------------
+
+  describe('TerminalComponent — keyboard shortcuts', () => {
+    it('Ctrl+L clears the transcript when it had lines', () => {
+      component.addResponse('West of House');
+      component.addResponse('You can see a mailbox here.');
+      expect(component.transcript).toHaveLength(2);
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'l', ctrlKey: true }));
+      expect(component.transcript).toHaveLength(0);
+    });
+
+    it('Ctrl+L calls event.preventDefault()', () => {
+      const event = new KeyboardEvent('keydown', { key: 'l', ctrlKey: true });
+      const spy = vi.spyOn(event, 'preventDefault');
+      component.handleKeydown(event);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('Ctrl+S emits "save" on the command EventEmitter', () => {
+      const emitted: string[] = [];
+      component.command.subscribe((cmd: string) => emitted.push(cmd));
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 's', ctrlKey: true }));
+      expect(emitted).toEqual(['save']);
+    });
+
+    it('Ctrl+S calls event.preventDefault()', () => {
+      const event = new KeyboardEvent('keydown', { key: 's', ctrlKey: true });
+      const spy = vi.spyOn(event, 'preventDefault');
+      component.handleKeydown(event);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('Ctrl+Z emits "undo" on the command EventEmitter', () => {
+      const emitted: string[] = [];
+      component.command.subscribe((cmd: string) => emitted.push(cmd));
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true }));
+      expect(emitted).toEqual(['undo']);
+    });
+
+    it('Ctrl+Z calls event.preventDefault()', () => {
+      const event = new KeyboardEvent('keydown', { key: 'z', ctrlKey: true });
+      const spy = vi.spyOn(event, 'preventDefault');
+      component.handleKeydown(event);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('Ctrl+L does NOT emit a command', () => {
+      const emitted: string[] = [];
+      component.command.subscribe((cmd: string) => emitted.push(cmd));
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'l', ctrlKey: true }));
+      expect(emitted).toHaveLength(0);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Theme toggle
   // ---------------------------------------------------------------------------
 
