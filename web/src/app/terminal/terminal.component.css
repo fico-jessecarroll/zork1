@@ -127,3 +127,18 @@
 .theme-btn:hover {
   background: var(--c-border);
 }
+
+.font-btn {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-bright);
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 2px;
+  margin-left: 4px;
+}
+.font-btn:hover {
+  background: var(--c-border);
+}

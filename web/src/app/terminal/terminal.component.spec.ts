@@ -256,6 +256,64 @@ describe('TerminalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Font size controls
+  // ---------------------------------------------------------------------------
+
+  describe('TerminalComponent — font size', () => {
+    afterEach(() => {
+      localStorage.removeItem('zork1-font-size');
+    });
+
+    it('fontSize defaults to 14 when localStorage has no saved value', () => {
+      localStorage.removeItem('zork1-font-size');
+      const freshComponent = TestBed.createComponent(TerminalComponent).componentInstance;
+      expect(freshComponent.fontSize).toBe(14);
+    });
+
+    it('fontSize is initialised from localStorage zork1-font-size key if present', () => {
+      localStorage.setItem('zork1-font-size', '18');
+      const freshComponent = TestBed.createComponent(TerminalComponent).componentInstance;
+      expect(freshComponent.fontSize).toBe(18);
+    });
+
+    it('increaseFontSize() increments fontSize by 2', () => {
+      component.fontSize = 14;
+      component.increaseFontSize();
+      expect(component.fontSize).toBe(16);
+    });
+
+    it('decreaseFontSize() decrements fontSize by 2', () => {
+      component.fontSize = 14;
+      component.decreaseFontSize();
+      expect(component.fontSize).toBe(12);
+    });
+
+    it('increaseFontSize() does not exceed 20', () => {
+      component.fontSize = 20;
+      component.increaseFontSize();
+      expect(component.fontSize).toBe(20);
+    });
+
+    it('decreaseFontSize() does not go below 10', () => {
+      component.fontSize = 10;
+      component.decreaseFontSize();
+      expect(component.fontSize).toBe(10);
+    });
+
+    it('increaseFontSize() persists the new value to localStorage', () => {
+      component.fontSize = 14;
+      component.increaseFontSize();
+      expect(localStorage.getItem('zork1-font-size')).toBe('16');
+    });
+
+    it('decreaseFontSize() persists the new value to localStorage', () => {
+      component.fontSize = 14;
+      component.decreaseFontSize();
+      expect(localStorage.getItem('zork1-font-size')).toBe('12');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Theme toggle
   // ---------------------------------------------------------------------------
 
