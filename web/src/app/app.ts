@@ -4,6 +4,7 @@ import { CheatSheetComponent } from './cheat-sheet/cheat-sheet.component';
 import { HintsComponent } from './hints/hints.component';
 import { SaveSlotsComponent } from './save-slots/save-slots.component';
 import { InventoryComponent } from './inventory/inventory.component';
+import { ExitsComponent } from './exits/exits.component';
 import { GameService, SlotInfo } from './game.service';
 import { AudioService } from './audio.service';
 import { GameState } from '../engine/types';
@@ -15,7 +16,7 @@ const ROOM_NAME_MAP = new Map<string, string>(
 
 @Component({
   selector: 'app-root',
-  imports: [TerminalComponent, CheatSheetComponent, HintsComponent, SaveSlotsComponent, InventoryComponent],
+  imports: [TerminalComponent, CheatSheetComponent, HintsComponent, SaveSlotsComponent, InventoryComponent, ExitsComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -33,6 +34,7 @@ export class App implements OnInit {
   }
   get roomName() { return ROOM_NAME_MAP.get(this.game.getState().here) ?? this.game.getState().here; }
   get saveSlots(): SlotInfo[] { return this.game.listSlotsData(); }
+  get exits(): string[] { return this.game.getExits(); }
   get inventory(): string[] { return this.game.getInventory(); }
   get isMuted(): boolean { return this.audio.isMuted(); }
 

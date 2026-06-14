@@ -1,0 +1,7 @@
+<div class="exits-container">
+  <div class="exits-header">Exits</div>
+  <div class="exits-body">
+    <span *ngIf="exits.length === 0" class="exits-none">None</span>
+    <span *ngFor="let dir of exits" class="exit-tag">{{ abbrev(dir) }}</span>
+  </div>
+</div>

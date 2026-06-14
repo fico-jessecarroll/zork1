@@ -9,6 +9,7 @@
   <div class="sidebar">
     <app-cheat-sheet></app-cheat-sheet>
     <app-inventory [items]="inventory"></app-inventory>
+    <app-exits [exits]="exits"></app-exits>
     <app-save-slots [slots]="saveSlots" (restoreSlot)="onRestoreSlot($event)"></app-save-slots>
     <app-hints [roomId]="roomId"></app-hints>
     <button class="mute-btn" (click)="toggleMute()" [attr.aria-label]="isMuted ? 'Unmute' : 'Mute'">

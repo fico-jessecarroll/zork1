@@ -130,6 +130,27 @@ describe('App — score delta', () => {
   });
 });
 
+describe('App — exits widget', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+    }).compileComponents();
+  });
+
+  it('renders app-exits element in the sidebar', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-exits')).toBeTruthy();
+  });
+
+  it('exits getter returns a non-empty array in the starting room', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    expect(app.exits.length).toBeGreaterThan(0);
+  });
+});
+
 describe('App — startup splash', () => {
   let fixture: ComponentFixture<App>;
   let terminal: TerminalComponent;
