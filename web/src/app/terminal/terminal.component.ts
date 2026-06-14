@@ -36,6 +36,17 @@ export class TerminalComponent implements AfterViewChecked {
   transcript: TranscriptLine[] = [];
   inputValue = '';
 
+  private readonly COMPLETIONS = [
+    'brief', 'close', 'down', 'drop', 'east', 'examine',
+    'get', 'go', 'in', 'inventory', 'land', 'look',
+    'ne', 'north', 'nw', 'open', 'out', 'quit',
+    'read', 'restore', 'save', 'saves', 'score',
+    'se', 'south', 'sw', 'take', 'undo', 'up',
+    'verbose', 'wait', 'walk', 'west',
+  ];
+  private tabMatches: string[] = [];
+  private tabIndex = -1;
+
   private shouldScroll = false;
   private cmdHistory: string[] = [];
   private historyIndex = -1;
@@ -52,6 +63,8 @@ export class TerminalComponent implements AfterViewChecked {
   }
 
   submit(): void {
+    this.tabMatches = [];
+    this.tabIndex = -1;
     const cmd = this.inputValue.trim();
     if (!cmd) return;
     this.cmdHistory.push(cmd);
@@ -67,12 +80,16 @@ export class TerminalComponent implements AfterViewChecked {
     if (event.key === 'Enter') {
       this.submit();
     } else if (event.key === 'ArrowUp') {
+      this.tabMatches = [];
+      this.tabIndex = -1;
       if (this.cmdHistory.length === 0) return;
       if (this.historyIndex === -1) this.draft = this.inputValue;
       this.historyIndex = Math.min(this.historyIndex + 1, this.cmdHistory.length - 1);
       this.inputValue = this.cmdHistory[this.cmdHistory.length - 1 - this.historyIndex];
       event.preventDefault();
     } else if (event.key === 'ArrowDown') {
+      this.tabMatches = [];
+      this.tabIndex = -1;
       if (this.historyIndex <= 0) {
         if (this.historyIndex === 0) {
           this.historyIndex = -1;
@@ -84,6 +101,20 @@ export class TerminalComponent implements AfterViewChecked {
       this.historyIndex--;
       this.inputValue = this.cmdHistory[this.cmdHistory.length - 1 - this.historyIndex];
       event.preventDefault();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      const raw = this.inputValue;
+      if (!raw.trim()) return;
+
+      const prefix = raw.toLowerCase();
+      if (this.tabMatches.length === 0 || !this.tabMatches[this.tabIndex]?.startsWith(prefix)) {
+        this.tabMatches = this.COMPLETIONS.filter(w => w.startsWith(prefix));
+        this.tabIndex = -1;
+      }
+      if (this.tabMatches.length === 0) return;
+      this.tabIndex = (this.tabIndex + 1) % this.tabMatches.length;
+      this.inputValue = this.tabMatches[this.tabIndex];
+      return;
     }
   }
 
