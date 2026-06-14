@@ -53,8 +53,16 @@ export class App implements OnInit {
 
   onCommand(cmd: string): void {
     this.audio.enable();
+    const scoreBefore = this.game.getState().score;
     const lines = this.game.processCommand(cmd);
     lines.forEach(l => this.terminal.addResponse(l));
+    const scoreAfter = this.game.getState().score;
+    if (scoreAfter > scoreBefore) {
+      const delta = scoreAfter - scoreBefore;
+      this.terminal.addResponse(
+        `[Your score just went up by ${delta} point${delta === 1 ? '' : 's'}!]`
+      );
+    }
     this.audio.playRoom(this.game.getState().here);
   }
 
