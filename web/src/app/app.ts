@@ -36,6 +36,14 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
+      const splash = [
+        'ZORK I: The Great Underground Empire',
+        'Copyright (c) 1981, 1982, 1983 Infocom, Inc. All rights reserved.',
+        'ZORK is a registered trademark of Infocom, Inc.',
+        'Revision 88 / Serial number 840726',
+        '',
+      ];
+      splash.forEach(l => this.terminal.addResponse(l));
       const lines = this.game.processCommand('look');
       lines.forEach(l => this.terminal.addResponse(l));
     });

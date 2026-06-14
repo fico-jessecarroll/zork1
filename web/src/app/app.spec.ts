@@ -1,5 +1,7 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { App } from './app';
+import { TerminalComponent } from './terminal/terminal.component';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -33,5 +35,46 @@ describe('App', () => {
     await fixture.whenStable();
     const app = fixture.componentInstance;
     expect(app.roomId).toBe('WEST-OF-HOUSE');
+  });
+});
+
+describe('App — startup splash', () => {
+  let fixture: ComponentFixture<App>;
+  let terminal: TerminalComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+    }).compileComponents();
+    fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    // Let the ngOnInit setTimeout(0) fire before asserting
+    await new Promise(resolve => setTimeout(resolve));
+    const terminalEl = fixture.debugElement.query(By.directive(TerminalComponent));
+    terminal = terminalEl.componentInstance as TerminalComponent;
+  });
+
+  it('should contain a line starting with ZORK I:', () => {
+    const texts = terminal.transcript.map(l => l.text);
+    expect(texts.some(t => t.startsWith('ZORK I:'))).toBe(true);
+  });
+
+  it('should contain the copyright line', () => {
+    const texts = terminal.transcript.map(l => l.text);
+    expect(texts.some(t => t.includes('Copyright'))).toBe(true);
+  });
+
+  it('should contain the revision line', () => {
+    const texts = terminal.transcript.map(l => l.text);
+    expect(texts.some(t => t.startsWith('Revision'))).toBe(true);
+  });
+
+  it('should display splash lines before the room description', () => {
+    const texts = terminal.transcript.map(l => l.text);
+    const splashIdx = texts.findIndex(t => t.startsWith('ZORK I:'));
+    const roomIdx = texts.findIndex(t => t.includes('West of House') || t.includes('white house'));
+    expect(splashIdx).toBeGreaterThanOrEqual(0);
+    expect(roomIdx).toBeGreaterThanOrEqual(0);
+    expect(splashIdx).toBeLessThan(roomIdx);
   });
 });
