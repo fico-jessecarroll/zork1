@@ -280,7 +280,7 @@ export class GameService {
     // Tick the clock
     clocker(this.state);
 
-    // Handle engine signals from meta verbs
+    // Handle engine signals from meta verbs (no auto-save for these)
     if (output.startsWith(SIGNAL_SAVE_PREFIX)) {
       const slot = output.slice(SIGNAL_SAVE_PREFIX.length);
       const ok = this.save(slot);
@@ -297,6 +297,8 @@ export class GameService {
       return ['Thanks for playing!'];
     }
 
+    this.autoSave();
+
     // Successful move: return the new room description
     if (output === '' && this.state.here !== prevHere) {
       const [, roomDesc] = vLook(this.state);
@@ -310,11 +312,19 @@ export class GameService {
   save(slot = 'quick'): boolean {
     const store = this.loadStore();
     const isNew = !(slot in store);
-    if (isNew && Object.keys(store).length >= MAX_SLOTS) return false;
+    const userSlots = Object.keys(store).filter(k => k !== 'auto');
+    if (isNew && userSlots.length >= MAX_SLOTS) return false;
     const data = JSON.parse(serializeState(this.state)) as SaveData;
     store[slot] = { ...data, timestamp: Date.now(), room: this.state.here };
     this.storage.setItem(SAVES_KEY, JSON.stringify(store));
     return true;
+  }
+
+  private autoSave(): void {
+    const store = this.loadStore();
+    const data = JSON.parse(serializeState(this.state)) as SaveData;
+    store['auto'] = { ...data, timestamp: Date.now(), room: this.state.here };
+    this.storage.setItem(SAVES_KEY, JSON.stringify(store));
   }
 
   /** Load state from the named slot. Returns true on success. */
@@ -331,15 +341,17 @@ export class GameService {
     }
   }
 
-  /** Return structured slot data for UI display. */
+  /** Return structured slot data for UI display (excludes the internal auto slot). */
   listSlotsData(): SlotInfo[] {
     const store = this.loadStore();
-    return Object.entries(store).map(([name, entry]) => ({
-      name,
-      timestamp: entry.timestamp,
-      room: entry.room,
-      score: entry.score,
-    }));
+    return Object.entries(store)
+      .filter(([name]) => name !== 'auto')
+      .map(([name, entry]) => ({
+        name,
+        timestamp: entry.timestamp,
+        room: entry.room,
+        score: entry.score,
+      }));
   }
 
   private listSlots(): string {
