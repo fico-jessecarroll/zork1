@@ -341,6 +341,10 @@ export class GameService {
     }
   }
 
+  hasAutoSave(): boolean {
+    return 'auto' in this.loadStore();
+  }
+
   /** Return structured slot data for UI display (excludes the internal auto slot). */
   listSlotsData(): SlotInfo[] {
     const store = this.loadStore();
@@ -396,10 +400,6 @@ export class GameService {
       .map(([dir]) => dir);
   }
 
-  hasAutoSave(): boolean {
-    return 'auto' in this.loadStore();
-  }
-
   getInventory(): string[] {
     const items: string[] = [];
     for (const obj of this.state.objects.values()) {
@@ -409,7 +409,6 @@ export class GameService {
     }
     return items;
   }
-
 
   getState(): Readonly<GameState> {
     return this.state;

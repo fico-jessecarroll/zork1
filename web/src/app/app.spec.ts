@@ -151,6 +151,63 @@ describe('App — exits widget', () => {
   });
 });
 
+describe('App — auto-restore', () => {
+  let fixture: ComponentFixture<App>;
+  let terminal: TerminalComponent;
+
+  afterEach(() => localStorage.clear());
+
+  describe('when no auto-save exists', () => {
+    beforeEach(async () => {
+      // Drain any pending setTimeouts from previous tests (they may write to localStorage)
+      await new Promise(resolve => setTimeout(resolve));
+      localStorage.clear();
+      await TestBed.configureTestingModule({
+        imports: [App],
+      }).compileComponents();
+      fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve));
+      const terminalEl = fixture.debugElement.query(By.directive(TerminalComponent));
+      terminal = terminalEl.componentInstance as TerminalComponent;
+    });
+
+    it('should NOT show restored message', () => {
+      const texts = terminal.transcript.map(l => l.text);
+      expect(texts.some(t => t.includes('[Restored previous session'))).toBe(false);
+    });
+  });
+
+  describe('when an auto-save exists', () => {
+    beforeEach(async () => {
+      await new Promise(resolve => setTimeout(resolve));
+      localStorage.clear();
+      await TestBed.configureTestingModule({
+        imports: [App],
+      }).compileComponents();
+      // Pre-populate auto-save via a direct GameService instance (no component needed)
+      const { GameService } = await import('./game.service');
+      const tempService = new GameService();
+      tempService.save('auto');
+      fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve));
+      const terminalEl = fixture.debugElement.query(By.directive(TerminalComponent));
+      terminal = terminalEl.componentInstance as TerminalComponent;
+    });
+
+    it('should show restored message', () => {
+      const texts = terminal.transcript.map(l => l.text);
+      expect(texts.some(t => t.includes('[Restored previous session'))).toBe(true);
+    });
+
+    it('should still display a room description after restore', () => {
+      const texts = terminal.transcript.map(l => l.text);
+      expect(texts.some(t => t.includes('West of House') || t.includes('white house') || t.includes('ZORK'))).toBe(true);
+    });
+  });
+});
+
 describe('App — startup splash', () => {
   let fixture: ComponentFixture<App>;
   let terminal: TerminalComponent;
