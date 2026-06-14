@@ -48,6 +48,10 @@ export class App implements OnInit {
         '',
       ];
       splash.forEach(l => this.terminal.addResponse(l));
+      if (this.game.hasAutoSave()) {
+        this.game.restore('auto');
+        this.terminal.addResponse('[Restored previous session.]');
+      }
       const lines = this.game.processCommand('look');
       lines.forEach(l => this.terminal.addResponse(l));
     });
