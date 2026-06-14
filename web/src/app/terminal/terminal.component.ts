@@ -116,6 +116,15 @@ export class TerminalComponent implements AfterViewChecked {
       this.historyIndex--;
       this.inputValue = this.cmdHistory[this.cmdHistory.length - 1 - this.historyIndex];
       event.preventDefault();
+    } else if (event.ctrlKey && event.key === 'l') {
+      event.preventDefault();
+      this.transcript = [];
+    } else if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.command.emit('save');
+    } else if (event.ctrlKey && event.key === 'z') {
+      event.preventDefault();
+      this.command.emit('undo');
     } else if (event.key === 'Tab') {
       event.preventDefault();
       const raw = this.inputValue;
