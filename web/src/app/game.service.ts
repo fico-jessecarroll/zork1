@@ -24,6 +24,7 @@ import {
 import { clocker } from '../engine/clock';
 import { OBJECTS } from '../engine/data/objects';
 import { rooms } from '../engine/data/rooms';
+import { isCyclopsPresent, handleGiveFood, handleOdysseus, handleSay as cyclopsSay } from '../engine/actions/cyclops';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -229,10 +230,19 @@ function dispatchCommand(cmd: string, state: GameState): [GameState, string] {
   }
 
   const dirKey = noun === '' ? DIRECTIONS.get(verb) : undefined;
-  if (dirKey !== undefined) return vWalk(state, DIR_OBJECTS.get(dirKey));
+  if (dirKey !== undefined) {
+    if (state.here === 'CYCLOPS-ROOM' && dirKey === 'up' && isCyclopsPresent(state)) {
+      return [state, 'The cyclops is blocking your way.'];
+    }
+    return vWalk(state, DIR_OBJECTS.get(dirKey));
+  }
 
   if ((verb === 'go' || verb === 'walk') && DIRECTIONS.has(noun)) {
-    return vWalk(state, DIR_OBJECTS.get(DIRECTIONS.get(noun)!));
+    const dir2 = DIRECTIONS.get(noun)!;
+    if (state.here === 'CYCLOPS-ROOM' && dir2 === 'up' && isCyclopsPresent(state)) {
+      return [state, 'The cyclops is blocking your way.'];
+    }
+    return vWalk(state, DIR_OBJECTS.get(dir2));
   }
 
   const prso = noun ? findObj(noun, state) : undefined;
@@ -269,6 +279,21 @@ function dispatchCommand(cmd: string, state: GameState): [GameState, string] {
     case 'push': case 'press':               return vPush(state, prso);
     case 'pull':                              return vPull(state, prso);
     case 'turn': case 'spin': case 'rotate':  return vTurn(state, prso);
+    case 'give': {
+      if (!prso) return [state, 'Give what to whom?'];
+      if (!prsi) return [state, 'Give it to whom?'];
+      if (prsi.id === 'CYCLOPS' && isCyclopsPresent(state)) {
+        return handleGiveFood(state, prso);
+      }
+      return [state, "You can't give that to anyone here."];
+    }
+    case 'say': {
+      if (state.here === 'CYCLOPS-ROOM' && isCyclopsPresent(state)) {
+        const result = cyclopsSay(state, noun);
+        if (result) return result;
+      }
+      return [state, `Okay, "${noun}".`];
+    }
     default:
       return [state, `I don't know the word "${verb}".`];
   }
