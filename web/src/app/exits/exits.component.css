@@ -1,0 +1,35 @@
+:host { display: block; }
+
+.exits-container {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  border-top: 1px solid #3a3000;
+}
+
+.exits-header {
+  background: #1a1a00;
+  color: #ffd54f;
+  font-weight: bold;
+  padding: 6px 8px;
+}
+
+.exits-body {
+  background: #0d0d0d;
+  color: #ffb300;
+  padding: 4px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.exit-tag {
+  border: 1px solid #3a3000;
+  padding: 1px 4px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.exits-none {
+  color: #555;
+  font-style: italic;
+}
