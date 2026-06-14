@@ -6,6 +6,8 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  AfterViewInit,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,7 +25,7 @@ export interface TranscriptLine {
   templateUrl: './terminal.component.html',
   styleUrl: './terminal.component.css',
 })
-export class TerminalComponent implements AfterViewChecked {
+export class TerminalComponent implements AfterViewChecked, AfterViewInit {
   @Input() gameState: GameState | null = null;
   @Input() roomName = '';
   @Output() command = new EventEmitter<string>();
@@ -140,6 +142,15 @@ export class TerminalComponent implements AfterViewChecked {
       this.inputValue = this.tabMatches[this.tabIndex];
       return;
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.inputEl.nativeElement.focus();
+  }
+
+  @HostListener('click')
+  focusInput(): void {
+    this.inputEl.nativeElement.focus();
   }
 
   ngAfterViewChecked(): void {

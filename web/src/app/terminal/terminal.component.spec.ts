@@ -370,6 +370,37 @@ describe('TerminalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Focus behaviour
+  // ---------------------------------------------------------------------------
+
+  describe('TerminalComponent — focus', () => {
+    let focusFixture: ComponentFixture<TerminalComponent>;
+    let focusComponent: TerminalComponent;
+
+    beforeEach(() => {
+      focusFixture = TestBed.createComponent(TerminalComponent);
+      focusComponent = focusFixture.componentInstance;
+      document.body.appendChild(focusFixture.nativeElement);
+      focusFixture.detectChanges();
+    });
+
+    afterEach(() => {
+      document.body.removeChild(focusFixture.nativeElement);
+    });
+
+    it('auto-focuses the input after view init', () => {
+      expect(focusComponent.inputEl.nativeElement).toBe(document.activeElement);
+    });
+
+    it('focusInput() refocuses the input after it has been blurred', () => {
+      focusComponent.inputEl.nativeElement.blur();
+      expect(focusComponent.inputEl.nativeElement).not.toBe(document.activeElement);
+      focusComponent.focusInput();
+      expect(focusComponent.inputEl.nativeElement).toBe(document.activeElement);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Theme toggle
   // ---------------------------------------------------------------------------
 
