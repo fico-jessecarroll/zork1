@@ -41,7 +41,7 @@ describe('full 350-point walkthrough', () => {
 
   it('all PUT commands return Done.', () => {
     const putRange = outputs.slice(FIRST_PUT_INDEX, SCORE_INDEX);
-    putRange.forEach((out, i) => {
+    putRange.forEach((out) => {
       expect(out).toBe(PUT_RESPONSE);
     });
   });

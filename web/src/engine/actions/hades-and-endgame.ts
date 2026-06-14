@@ -8,7 +8,7 @@
  * All functions are pure: they accept state and return new state + messages.
  */
 
-import { GameState as WorldState, move, fcheck, fset, fclear, isIn, ONBIT, INVISIBLE } from '../world';
+import { GameState as WorldState, move, fcheck, fclear, isIn, ONBIT, INVISIBLE } from '../world';
 
 // ── Canonical IDs ────────────────────────────────────────────────────────────
 
@@ -81,11 +81,6 @@ export type ActionResult =
   | { handled: false };
 
 // ── ZIL message literals ─────────────────────────────────────────────────────
-
-const MSG_ALREADY_DEAD =
-  "It takes a talented person to be killed while already dead. YOU are such\n" +
-  "a talent. Unfortunately, it takes a talented person to deal with it.\n" +
-  "I am not such a talent. Sorry.";
 
 const MSG_BAD_LUCK = "Bad luck, huh?";
 

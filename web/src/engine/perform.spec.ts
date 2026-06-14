@@ -170,7 +170,7 @@ describe('perform — short-circuit on M_HANDLED', () => {
   });
 
   it('handler 5 (PRSO container CONTFCN) handled → handlers 6-7 not called', () => {
-    const { winnerAction, roomAction, preaction, prsiAction, contfcn, prsoAction, defaultAction, prso, prsi, state } =
+    const { contfcn, prsoAction, defaultAction, prso, prsi, state } =
       makeAllHandlers();
     contfcn.mockReturnValue(M_HANDLED);
 
@@ -183,7 +183,7 @@ describe('perform — short-circuit on M_HANDLED', () => {
   });
 
   it('handler 6 (PRSO action) handled → handler 7 not called', () => {
-    const { winnerAction, roomAction, preaction, prsiAction, contfcn, prsoAction, defaultAction, prso, prsi, state } =
+    const { prsoAction, defaultAction, prso, prsi, state } =
       makeAllHandlers();
     prsoAction.mockReturnValue(M_HANDLED);
 
@@ -276,7 +276,7 @@ describe('perform — null objects', () => {
     const contfcn = noop();
     const prsoAction = noop();
     const defaultAction = handled();
-    const container: ZorkObject = { contfcn };
+    const _container: ZorkObject = { contfcn };
     // prso is null — objects above are not attached to anything
     const actions: ActionFn[] = [];
     actions[VERB_TAKE] = defaultAction;

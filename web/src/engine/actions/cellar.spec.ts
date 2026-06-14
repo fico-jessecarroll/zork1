@@ -3,13 +3,9 @@ import {
   playerAttacksTroll,
   checkSwordGlow,
   cellarOnEnter,
-  MISSED,
-  UNCONSCIOUS,
   KILLED,
   LIGHT_WOUND,
   SERIOUS_WOUND,
-  STAGGER,
-  LOSE_WEAPON,
   BlowResult,
 } from './cellar';
 
@@ -19,10 +15,7 @@ import {
   fcheck,
   fset,
   move,
-  setProp,
   getProp,
-  OPENBIT,
-  RLANDBIT,
 } from '../world';
 
 // ─── Test helpers ─────────────────────────────────────────────────────────────

@@ -138,7 +138,7 @@ function setGlobal(name: string, value: boolean, state: ActionState): ActionStat
  */
 export function boardHandler(
   state: ActionState,
-  prso?: string,
+  _prso?: string,
   _prsi?: string,
 ): [ActionState, string] {
   if (state.verb === 'TAKE' || state.verb === 'EXAMINE') {
