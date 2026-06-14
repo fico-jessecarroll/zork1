@@ -398,6 +398,18 @@ export class GameService {
     return items;
   }
 
+  getExits(): string[] {
+    const exits = this.state.roomExits.get(this.state.here);
+    if (!exits) return [];
+    return Array.from(exits.entries())
+      .filter(([, dest]) => dest !== null)
+      .map(([dir]) => dir);
+  }
+
+  hasAutoSave(): boolean {
+    return 'auto' in this.loadStore();
+  }
+
   getState(): Readonly<GameState> {
     return this.state;
   }
