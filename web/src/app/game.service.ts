@@ -388,6 +388,16 @@ export class GameService {
     return true;
   }
 
+  getInventory(): string[] {
+    const items: string[] = [];
+    for (const obj of this.state.objects.values()) {
+      if (obj.parent === this.state.player) {
+        items.push(obj.desc);
+      }
+    }
+    return items;
+  }
+
   getState(): Readonly<GameState> {
     return this.state;
   }

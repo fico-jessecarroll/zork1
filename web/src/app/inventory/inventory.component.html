@@ -1,0 +1,7 @@
+<div class="inv-container">
+  <div class="inv-header">Inventory</div>
+  <div class="inv-body">
+    <div *ngIf="items.length === 0" class="inv-empty">Empty-handed</div>
+    <div *ngFor="let item of items" class="inv-item">{{ item }}</div>
+  </div>
+</div>
