@@ -461,3 +461,53 @@ describe('GameService — auto-save', () => {
     expect(timestampAfterUndo).toBe(timestampBeforeUndo);
   });
 });
+
+// ─── getExits ────────────────────────────────────────────────────────────────
+
+describe('GameService — getExits', () => {
+  it('returns a non-empty array in the starting room', () => {
+    const svc = new GameService(makeStorage());
+    const exits = svc.getExits();
+    expect(exits.length).toBeGreaterThan(0);
+  });
+
+  it('returns only navigable exits (blocked directions excluded)', () => {
+    const svc = new GameService(makeStorage());
+    // Should not include any null-destination directions
+    const exits = svc.getExits();
+    expect(exits.every(dir => typeof dir === 'string' && dir.length > 0)).toBe(true);
+    // The starting room has at least 'north' as a navigable exit
+    expect(exits).toContain('north');
+  });
+
+  it('returns different exits after moving rooms', () => {
+    const svc = new GameService(makeStorage());
+    const startingExits = svc.getExits();
+    svc.processCommand('north');
+    const newExits = svc.getExits();
+    expect(newExits).not.toEqual(startingExits);
+  });
+
+  it('returns an array of lowercase direction strings', () => {
+    const svc = new GameService(makeStorage());
+    const exits = svc.getExits();
+    for (const dir of exits) {
+      expect(dir).toBe(dir.toLowerCase());
+    }
+  });
+});
+
+// ─── hasAutoSave ─────────────────────────────────────────────────────────────
+
+describe('GameService — hasAutoSave', () => {
+  it('returns false on a fresh game (no commands run yet)', () => {
+    const svc = new GameService(makeStorage());
+    expect(svc.hasAutoSave()).toBe(false);
+  });
+
+  it('returns true after processCommand("look") fires auto-save', () => {
+    const svc = new GameService(makeStorage());
+    svc.processCommand('look');
+    expect(svc.hasAutoSave()).toBe(true);
+  });
+});
