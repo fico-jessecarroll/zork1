@@ -497,6 +497,63 @@ describe('GameService — getExits', () => {
   });
 });
 
+// ─── Cyclops puzzle ───────────────────────────────────────────────────────────
+
+describe('GameService — cyclops puzzle', () => {
+  /** Build a storage pre-loaded with player in CYCLOPS-ROOM and garlic in inventory. */
+  function makeStorageInCyclopsRoom(): Pick<Storage, 'getItem' | 'setItem'> {
+    const initial = buildInitialState();
+    const objects = new Map(initial.objects);
+
+    const player = objects.get('PLAYER')!;
+    objects.set('PLAYER', { ...player, parent: 'CYCLOPS-ROOM' });
+
+    const garlic = objects.get('GARLIC')!;
+    objects.set('GARLIC', { ...garlic, parent: 'PLAYER' });
+
+    const testState = { ...initial, here: 'CYCLOPS-ROOM', objects };
+    const data = JSON.parse(serializeState(testState)) as Record<string, unknown>;
+
+    const storage = makeStorage();
+    storage.setItem('zork1-saves', JSON.stringify({
+      quick: { ...data, timestamp: Date.now(), room: 'CYCLOPS-ROOM' },
+    }));
+    return storage;
+  }
+
+  it('going "up" from CYCLOPS-ROOM while cyclops is present returns a blocking message', () => {
+    const svc = new GameService(makeStorageInCyclopsRoom());
+    svc.restore('quick');
+    const [msg] = svc.processCommand('up');
+    expect(msg.toLowerCase()).toContain('blocking');
+    expect(svc.getState().here).toBe('CYCLOPS-ROOM');
+  });
+
+  it('"say odysseus" makes the cyclops flee and opens the passage', () => {
+    const svc = new GameService(makeStorageInCyclopsRoom());
+    svc.restore('quick');
+    const [msg] = svc.processCommand('say odysseus');
+    expect(svc.getState().objects.get('CYCLOPS')?.parent).toBeNull();
+    expect(msg).toBeTruthy();
+  });
+
+  it('after the cyclops flees, going "up" moves the player to TREASURE-ROOM', () => {
+    const svc = new GameService(makeStorageInCyclopsRoom());
+    svc.restore('quick');
+    svc.processCommand('say odysseus');
+    svc.processCommand('up');
+    expect(svc.getState().here).toBe('TREASURE-ROOM');
+  });
+
+  it('"give garlic to cyclops" makes the cyclops flee', () => {
+    const svc = new GameService(makeStorageInCyclopsRoom());
+    svc.restore('quick');
+    const [msg] = svc.processCommand('give garlic to cyclops');
+    expect(svc.getState().objects.get('CYCLOPS')?.parent).toBeNull();
+    expect(msg).toBeTruthy();
+  });
+});
+
 // ─── hasAutoSave ─────────────────────────────────────────────────────────────
 
 describe('GameService — hasAutoSave', () => {
