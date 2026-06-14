@@ -495,10 +495,6 @@ function dispatch(cmd: string, state: WState): [WState, string] {
       return [state, 'The boat deflates.'];
     }
 
-    case 'unlock': {
-      return [state, 'Unlocked.'];
-    }
-
     default:
       return [state, `I don't know the word "${verb}".`];
   }
@@ -671,7 +667,7 @@ function doPushMove(nounStr: string, state: WState): [WState, string] {
 
   if (id === 'YELLOW-BUTTON' || nounStr.includes('yellow')) {
     if (!state.lowTide) {
-      let s = clearInvisible('TRUNK', { ...state, lowTide: true });
+      const s = clearInvisible('TRUNK', { ...state, lowTide: true });
       return [s, 'The sluice gates open. The reservoir slowly empties.'];
     }
     return [state, 'Already done.'];
@@ -810,7 +806,7 @@ function doWave(nounStr: string, state: WState): [WState, string] {
 
 function doDig(nounStr: string, state: WState): [WState, string] {
   if (state.room === 'SANDY-CAVE') {
-    let s = clearInvisible('SCARAB', state);
+    const s = clearInvisible('SCARAB', state);
     return [s, 'Your shovel uncovers a beautiful jeweled scarab!'];
   }
   return [state, 'Digging here reveals nothing useful.'];

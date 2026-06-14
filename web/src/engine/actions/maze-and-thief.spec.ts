@@ -2,7 +2,6 @@ import {
   ThiefGameState,
   MAZEBIT,
   TOUCHBIT,
-  FIGHTBIT,
   OBJ_THIEF,
   OBJ_STILETTO,
   OBJ_LARGE_BAG,
@@ -427,7 +426,7 @@ describe('iThief — thief steals items from player', () => {
     objects.set(ROOM_B, makeObj(ROOM_B, null, [RLANDBIT, TOUCHBIT]));
     objects.set('gem', makeObj('gem', ROOM_B));
     const baseState = { ...makeState(), objects };
-    let state = withTvalue(baseState, 'gem', 5);
+    const state = withTvalue(baseState, 'gem', 5);
 
     // Thief in room-b (invisible) → hacks room-b (75% rob) → wanders
     // rng=0: 0*100=0 < 75 → steals gem from room-b
