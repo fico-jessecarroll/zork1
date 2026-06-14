@@ -363,3 +363,65 @@ describe('GameService — named save slots', () => {
     expect(typeof slots[0].timestamp).toBe('number');
   });
 });
+
+// ─── Auto-save ───────────────────────────────────────────────────────────────
+
+describe('GameService — auto-save', () => {
+  it('after processCommand("look") the auto slot exists in localStorage', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+    svc.processCommand('look');
+    const raw = storage.getItem('zork1-saves');
+    expect(raw).not.toBeNull();
+    const store = JSON.parse(raw!) as Record<string, unknown>;
+    expect('auto' in store).toBe(true);
+  });
+
+  it('auto slot is overwritten on each command and reflects the most recent state', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+
+    svc.processCommand('look');
+    const storeAfterFirst = JSON.parse(storage.getItem('zork1-saves')!) as Record<string, { room: string; timestamp: number }>;
+    const firstTimestamp = storeAfterFirst['auto'].timestamp;
+
+    svc.processCommand('north');
+    const storeAfterSecond = JSON.parse(storage.getItem('zork1-saves')!) as Record<string, { room: string; timestamp: number }>;
+    const secondTimestamp = storeAfterSecond['auto'].timestamp;
+    const secondRoom = storeAfterSecond['auto'].room;
+
+    expect(secondTimestamp).toBeGreaterThanOrEqual(firstTimestamp);
+    expect(secondRoom).toBe(svc.getState().here);
+  });
+
+  it('auto slot does not count toward the 5-slot user cap', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+
+    svc.save('a');
+    svc.save('b');
+    svc.save('c');
+    svc.save('d');
+    svc.save('e');
+
+    svc.processCommand('look');
+
+    const store = JSON.parse(storage.getItem('zork1-saves')!) as Record<string, unknown>;
+    expect('auto' in store).toBe(true);
+  });
+
+  it('processCommand("undo") does not overwrite the auto-save', () => {
+    const storage = makeStorage();
+    const svc = new GameService(storage);
+
+    svc.processCommand('look');
+    const storeBeforeUndo = JSON.parse(storage.getItem('zork1-saves')!) as Record<string, { timestamp: number }>;
+    const timestampBeforeUndo = storeBeforeUndo['auto'].timestamp;
+
+    svc.processCommand('undo');
+    const storeAfterUndo = JSON.parse(storage.getItem('zork1-saves')!) as Record<string, { timestamp: number }>;
+    const timestampAfterUndo = storeAfterUndo['auto'].timestamp;
+
+    expect(timestampAfterUndo).toBe(timestampBeforeUndo);
+  });
+});
