@@ -191,6 +191,71 @@ describe('TerminalComponent', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Tab completion
+  // ---------------------------------------------------------------------------
+
+  describe('TerminalComponent — tab completion', () => {
+    it('Tab on empty input does nothing', () => {
+      component.inputValue = '';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('');
+    });
+
+    it('Tab with input "lo" completes to "look"', () => {
+      component.inputValue = 'lo';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('look');
+    });
+
+    it('Tab with input "n" completes to first match "ne"', () => {
+      component.inputValue = 'n';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('ne');
+    });
+
+    it('second Tab with same prefix "n" cycles to next match "north"', () => {
+      component.inputValue = 'n';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('north');
+    });
+
+    it('Tab with input "xyz" (no match) does nothing', () => {
+      component.inputValue = 'xyz';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('xyz');
+    });
+
+    it('after Enter (submit), Tab on same prefix restarts cycle from beginning', () => {
+      component.inputValue = 'n';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      // now on 'north', submit to reset
+      component.inputValue = 'north';
+      component.submit();
+      // restart cycle
+      component.inputValue = 'n';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('ne');
+    });
+
+    it('after ArrowUp, Tab restarts the cycle from the beginning', () => {
+      component.inputValue = 'go north';
+      component.submit();
+      // cycle through two 'n' completions
+      component.inputValue = 'n';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      // navigate history to reset tab state
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
+      // type prefix again and Tab should restart from beginning
+      component.inputValue = 'n';
+      component.handleKeydown(new KeyboardEvent('keydown', { key: 'Tab' }));
+      expect(component.inputValue).toBe('ne');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Theme toggle
   // ---------------------------------------------------------------------------
 
