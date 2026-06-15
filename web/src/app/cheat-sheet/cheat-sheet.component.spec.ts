@@ -66,3 +66,53 @@ describe('CheatSheetComponent', () => {
     expect(text).toContain('quit');
   });
 });
+
+describe('CheatSheetComponent — collapsible', () => {
+  let fixture: ComponentFixture<CheatSheetComponent>;
+  let component: CheatSheetComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CheatSheetComponent],
+    }).compileComponents();
+    fixture = TestBed.createComponent(CheatSheetComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('renders a toggle button', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.sheet-toggle');
+    expect(btn).not.toBeNull();
+  });
+
+  it('is open by default', () => {
+    expect(component.isOpen).toBe(true);
+  });
+
+  it('hides section content after clicking toggle', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.sheet-toggle') as HTMLElement;
+    btn.click();
+    fixture.detectChanges();
+    const sections = (fixture.nativeElement as HTMLElement).querySelectorAll('.section');
+    expect(sections.length).toBe(0);
+  });
+
+  it('shows section content again after second click', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.sheet-toggle') as HTMLElement;
+    btn.click();
+    fixture.detectChanges();
+    btn.click();
+    fixture.detectChanges();
+    const sections = (fixture.nativeElement as HTMLElement).querySelectorAll('.section');
+    expect(sections.length).toBeGreaterThan(0);
+  });
+
+  it('toggle button text reflects open state', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.sheet-toggle') as HTMLElement;
+    const openText = btn.textContent;
+    btn.click();
+    fixture.detectChanges();
+    const closedText = btn.textContent;
+    expect(openText).not.toEqual(closedText);
+  });
+});

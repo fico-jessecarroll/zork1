@@ -6,11 +6,20 @@
   border-top: 1px solid #3a3000;
 }
 
-.exits-header {
+.exits-toggle {
+  width: 100%;
   background: #1a1a00;
+  border: none;
   color: #ffd54f;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
   font-weight: bold;
+  cursor: pointer;
   padding: 6px 8px;
+  text-align: left;
+}
+.exits-toggle:hover {
+  background: #2a2a00;
 }
 
 .exits-body {

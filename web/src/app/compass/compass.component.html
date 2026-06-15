@@ -1,6 +1,8 @@
 <div class="compass-container">
-  <div class="compass-header">Compass</div>
-  <div class="compass-grid">
+  <button class="compass-toggle" (click)="toggle()">
+    {{ isOpen ? '▲' : '▼' }} Compass
+  </button>
+  <div class="compass-grid" *ngIf="isOpen">
     <span class="compass-cell" [class.available]="isAvailable('nw')" data-dir="nw">NW</span>
     <span class="compass-cell" [class.available]="isAvailable('north')" data-dir="north">N</span>
     <span class="compass-cell" [class.available]="isAvailable('ne')" data-dir="ne">NE</span>

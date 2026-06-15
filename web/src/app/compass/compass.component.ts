@@ -10,6 +10,8 @@ import { CommonModule } from '@angular/common';
 })
 export class CompassComponent {
   @Input() exits: string[] = [];
+  isOpen = true;
+  toggle(): void { this.isOpen = !this.isOpen; }
 
   isAvailable(dir: string): boolean {
     return this.exits.includes(dir);

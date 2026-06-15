@@ -78,3 +78,45 @@ describe('CompassComponent', () => {
     });
   });
 });
+
+describe('CompassComponent — collapsible', () => {
+  let fixture: ComponentFixture<CompassComponent>;
+  let component: CompassComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CompassComponent],
+    }).compileComponents();
+    fixture = TestBed.createComponent(CompassComponent);
+    component = fixture.componentInstance;
+    component.exits = ['north'];
+    fixture.detectChanges();
+  });
+
+  it('renders a toggle button', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.compass-toggle');
+    expect(btn).not.toBeNull();
+  });
+
+  it('is open by default', () => {
+    expect(component.isOpen).toBe(true);
+  });
+
+  it('hides compass-grid after clicking toggle', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.compass-toggle') as HTMLElement;
+    btn.click();
+    fixture.detectChanges();
+    const grid = (fixture.nativeElement as HTMLElement).querySelector('.compass-grid');
+    expect(grid).toBeNull();
+  });
+
+  it('shows compass-grid again after second click', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.compass-toggle') as HTMLElement;
+    btn.click();
+    fixture.detectChanges();
+    btn.click();
+    fixture.detectChanges();
+    const grid = (fixture.nativeElement as HTMLElement).querySelector('.compass-grid');
+    expect(grid).not.toBeNull();
+  });
+});

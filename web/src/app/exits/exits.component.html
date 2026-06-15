@@ -1,6 +1,8 @@
 <div class="exits-container">
-  <div class="exits-header">Exits</div>
-  <div class="exits-body">
+  <button class="exits-toggle" (click)="toggle()">
+    {{ isOpen ? '▲' : '▼' }} Exits
+  </button>
+  <div class="exits-body" *ngIf="isOpen">
     <span *ngIf="exits.length === 0" class="exits-none">None</span>
     <span *ngFor="let dir of exits" class="exit-tag">{{ abbrev(dir) }}</span>
   </div>

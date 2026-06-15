@@ -1,10 +1,14 @@
 <div class="cheat-sheet">
-  <div class="sheet-title">Commands</div>
-  <div *ngFor="let section of sections" class="section">
-    <div class="section-heading">{{ section.heading }}</div>
-    <div *ngFor="let row of section.rows" class="row">
-      <span class="cmd">{{ row.cmd }}</span>
-      <span class="desc">{{ row.desc }}</span>
+  <button class="sheet-toggle" (click)="toggle()">
+    {{ isOpen ? '▲' : '▼' }} Commands
+  </button>
+  <div *ngIf="isOpen">
+    <div *ngFor="let section of sections" class="section">
+      <div class="section-heading">{{ section.heading }}</div>
+      <div *ngFor="let row of section.rows" class="row">
+        <span class="cmd">{{ row.cmd }}</span>
+        <span class="desc">{{ row.desc }}</span>
+      </div>
     </div>
   </div>
 </div>
