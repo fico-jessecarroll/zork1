@@ -10,4 +10,6 @@ import { CommonModule } from '@angular/common';
 })
 export class InventoryComponent {
   @Input() items: string[] = [];
+  isOpen = true;
+  toggle(): void { this.isOpen = !this.isOpen; }
 }

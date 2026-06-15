@@ -10,6 +10,8 @@ import { CommonModule } from '@angular/common';
 })
 export class ExitsComponent {
   @Input() exits: string[] = [];
+  isOpen = true;
+  toggle(): void { this.isOpen = !this.isOpen; }
 
   abbrev(dir: string): string {
     const MAP: Record<string, string> = {

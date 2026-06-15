@@ -1,29 +1,35 @@
 :host {
   display: block;
-  height: 100%;
 }
 
 .cheat-sheet {
-  height: 100%;
   background: #0d0d0d;
   color: #ffb300;
   font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   border-left: 1px solid #3a3000;
-  overflow-y: auto;
-  padding: 10px 8px;
+  padding: 0 8px 10px;
   box-sizing: border-box;
 }
 
-.sheet-title {
-  color: #ffd54f;
-  font-weight: bold;
-  font-size: 13px;
+.sheet-toggle {
+  width: 100%;
+  background: #1a1a00;
+  border: none;
   border-bottom: 1px solid #3a3000;
-  padding-bottom: 6px;
-  margin-bottom: 10px;
+  color: #ffd54f;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 8px;
+  text-align: left;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+.sheet-toggle:hover {
+  background: #2a2a00;
 }
 
 .section {

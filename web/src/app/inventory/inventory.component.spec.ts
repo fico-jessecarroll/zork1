@@ -42,3 +42,45 @@ describe('InventoryComponent', () => {
     expect(items.length).toBe(2);
   });
 });
+
+describe('InventoryComponent — collapsible', () => {
+  let fixture: ComponentFixture<InventoryComponent>;
+  let component: InventoryComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [InventoryComponent],
+    }).compileComponents();
+    fixture = TestBed.createComponent(InventoryComponent);
+    component = fixture.componentInstance;
+    component.items = ['sword'];
+    fixture.detectChanges();
+  });
+
+  it('renders a toggle button', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.inv-toggle');
+    expect(btn).not.toBeNull();
+  });
+
+  it('is open by default', () => {
+    expect(component.isOpen).toBe(true);
+  });
+
+  it('hides inv-body after clicking toggle', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.inv-toggle') as HTMLElement;
+    btn.click();
+    fixture.detectChanges();
+    const body = (fixture.nativeElement as HTMLElement).querySelector('.inv-body');
+    expect(body).toBeNull();
+  });
+
+  it('shows inv-body again after second click', () => {
+    const btn = (fixture.nativeElement as HTMLElement).querySelector('.inv-toggle') as HTMLElement;
+    btn.click();
+    fixture.detectChanges();
+    btn.click();
+    fixture.detectChanges();
+    const body = (fixture.nativeElement as HTMLElement).querySelector('.inv-body');
+    expect(body).not.toBeNull();
+  });
+});

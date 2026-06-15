@@ -14,6 +14,9 @@ interface CommandSection {
   styleUrl: './cheat-sheet.component.css',
 })
 export class CheatSheetComponent {
+  isOpen = true;
+  toggle(): void { this.isOpen = !this.isOpen; }
+
   readonly sections: CommandSection[] = [
     {
       heading: 'Movement',

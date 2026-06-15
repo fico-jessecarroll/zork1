@@ -1,6 +1,8 @@
 <div class="inv-container">
-  <div class="inv-header">Inventory</div>
-  <div class="inv-body">
+  <button class="inv-toggle" (click)="toggle()">
+    {{ isOpen ? '▲' : '▼' }} Inventory
+  </button>
+  <div class="inv-body" *ngIf="isOpen">
     <div *ngIf="items.length === 0" class="inv-empty">Empty-handed</div>
     <div *ngFor="let item of items" class="inv-item">{{ item }}</div>
   </div>
